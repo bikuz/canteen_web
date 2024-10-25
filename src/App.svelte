@@ -49,7 +49,7 @@
   // Function to handle logout and redirect
   const logout = () => {
     logoutAction(); // Call the actual logout action
-    navigate('/');  // Redirect to home page
+    navigate('/login');  // Redirect to home page
   };
 
   function toggleSidebar() {
@@ -89,12 +89,12 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-gray-800 text-white flex-shrink-0 h-full overflow-auto hidden lg:flex flex-col">
       <div class="p-4 text-2xl font-bold">
-        App Logo
+        App Logoss
       </div>
       <nav class="p-4 space-y-2">
         <Link to="/" class="block p-2 rounded hover:bg-gray-700">Home</Link>
         
-        {#if isAuthenticated}
+        {#if $isAuthenticated}
           <Link to="/protected" class="block p-2 rounded hover:bg-gray-700  text-white " >Protected</Link>
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
@@ -120,10 +120,10 @@
       
       <!-- Mobile Sidebar -->
       <aside id="sidebar" class="lg:hidden fixed inset-0 bg-gray-800 text-white flex flex-col z-50 transform translate-x-full transition-transform duration-300" style="width: 250px;">
-        <div class="p-4 text-2xl font-bold">App Name</div>
+        <div class="p-4 text-2xl font-bold">App Logo</div>
         <nav class="p-4 space-y-2">
            <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
-           {#if isAuthenticated}
+           {#if $isAuthenticated}
               <Link to="/protected" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Protected</Link>
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
