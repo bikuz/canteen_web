@@ -39,6 +39,9 @@
   // import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
   import Protected from './routes/Protected.svelte';
+  import Home from './routes/Home.svelte';
+  import Categories from './routes/Categories.svelte';
+  import ItemManagement from './routes/ItemManagement.svelte';
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
 
@@ -96,6 +99,9 @@
         
         {#if $isAuthenticated}
           <Link to="/protected" class="block p-2 rounded hover:bg-gray-700  text-white " >Protected</Link>
+          <Link to="/category-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
+            <Link to="/item-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
+            
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
           </button>
@@ -125,6 +131,9 @@
            <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
            {#if $isAuthenticated}
               <Link to="/protected" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Protected</Link>
+              <Link to="/category-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
+            <Link to="/item-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
+            
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
               <Link to="/login" class="block p-2 rounded hover:bg-gray-700">Login</Link>
@@ -137,6 +146,10 @@
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
         <Route path="/protected" component={Protected} />
+        <Route path="/" component={Home} />
+        <Route path="/category-management" component={Categories} />
+        <Route path="/item-management" component={ItemManagement} />
+        <!-- <Route path="/home" component={Home}/> -->
       </main>
     </div>
   </div>
