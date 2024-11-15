@@ -52,7 +52,7 @@
   // Function to handle logout and redirect
   const logout = () => {
     logoutAction(); // Call the actual logout action
-    navigate('/login');  // Redirect to home page
+    navigate('/');  // Redirect to home page
   };
 
   function toggleSidebar() {
