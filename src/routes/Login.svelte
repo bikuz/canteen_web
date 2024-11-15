@@ -34,20 +34,21 @@
 
    let username = '';
    let password = '';
-   let isLdapUser = false; // New variable for checkbox state 
+   let isLdapUser = false; 
 
    async function loginUser() {
-    const loginurl = isLdapUser 
-      ? 'http://localhost:3000/auth/login/ldap' 
-      : 'http://localhost:3000/auth/login/local'; // Toggle between urls
-  
-    var response = await fetch(loginurl, {
+    // 'http://localhost:3000/auth/login/local'
+    const loginurl=isLdapUser?
+      'http://localhost:3000/auth/login/ldap':
+      'http://localhost:3000/auth/login'
+
+    const response = await fetch(loginurl, {
        method: 'POST',
        headers: { 'Content-Type': 'application/json' },
        body: JSON.stringify({ username, password }),
      });
-
-     var data = await response.json();
+ 
+     const data = await response.json();
      if (response.ok) {
        login(data.access_token);       
        navigate('/protected');
@@ -70,6 +71,7 @@
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
       <div class="space-y-4">
+
         <div class="flex items-center">
           <input
             type="checkbox"
@@ -79,6 +81,7 @@
           />
           <label for="ldapCheckbox" class="text-gray-700">LDAP user</label>
         </div>
+
         <input
           class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Username"

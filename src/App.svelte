@@ -41,7 +41,8 @@
   import Protected from './routes/Protected.svelte';
   import Home from './routes/Home.svelte';
   import Categories from './routes/Categories.svelte';
-  import ItemManagement from './routes/ItemManagement.svelte';
+  import ItemManagement from './routes/Items.svelte';
+  import DashboardAdmin from './routes/Dashboard_admin.svelte';
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
 
@@ -99,8 +100,10 @@
         
         {#if $isAuthenticated}
           <Link to="/protected" class="block p-2 rounded hover:bg-gray-700  text-white " >Protected</Link>
-          <Link to="/category-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
-            <Link to="/item-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
+          <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link>
+          <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
+          
+            <Link to="/itemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
             
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
@@ -131,8 +134,9 @@
            <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
            {#if $isAuthenticated}
               <Link to="/protected" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Protected</Link>
-              <Link to="/category-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
-            <Link to="/item-management" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
+              <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link>
+              <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
+            <Link to="/itemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Item Management</Link>
             
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
@@ -142,13 +146,14 @@
      </aside>
 
       <!-- Main Area -->
-      <main class="flex-grow p-6 overflow-y-auto">
+      <main class="flex-grow p-6 overflow-hidden">
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
         <Route path="/protected" component={Protected} />
-        <Route path="/" component={Home} />
-        <Route path="/category-management" component={Categories} />
-        <Route path="/item-management" component={ItemManagement} />
+        <!-- <Route path="/" component={Home} /> -->
+        <Route path="/catMgmt" component={Categories} />
+        <Route path="/itemMgmt" component={ItemManagement} />
+        <Route path="/dbAdmin" component={DashboardAdmin} />
         <!-- <Route path="/home" component={Home}/> -->
       </main>
     </div>
