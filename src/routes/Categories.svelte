@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
 
     let showCategoryForm = false;
+    let imgFile=null;
     let newCategory = { name: '', image: '' };
     let editing = null;
     let isNameEmpty = false;
@@ -21,6 +22,7 @@
       if (isNameEmpty)
         return;
 
+      newCategory.image=imgFile;
       if (editing && editing._id) {
           // Ensure `editing._id` exists and is valid
           if (editing._id) {
@@ -72,12 +74,12 @@
             return; 
         }
 
-        newCategory.image =file;
-        // const reader = new FileReader();
-        // reader.onload = () => {
-        //     newCategory.image = reader.result; 
-        // };
-        // reader.readAsDataURL(file);
+        imgFile = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+            newCategory.image = reader.result; 
+        };
+        reader.readAsDataURL(file);
     }
 }
 
@@ -125,13 +127,13 @@
 
       <!-- Image preview -->
       {#if newCategory.image}
-        <div class="image-preview mb-4">
+        <div class="category-image mb-2">
           <img 
             src={newCategory.image} 
             alt="{newCategory.name} Category Image Preview" 
-            class="w-full h-auto rounded border border-gray-300"
-          />
+           class="w-full h-96 object-cover rounded border border-gray-300">
         </div>
+        
       {/if}
 
       <div class="flex space-x-4">
