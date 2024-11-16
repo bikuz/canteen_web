@@ -40,7 +40,7 @@
     // 'http://localhost:3000/auth/login/local'
     const loginurl=isLdapUser?
       'http://localhost:3000/auth/login/ldap':
-      'http://localhost:3000/auth/login'
+      'http://localhost:3000/auth/login/local'
 
     const response = await fetch(loginurl, {
        method: 'POST',

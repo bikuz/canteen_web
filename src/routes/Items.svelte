@@ -37,7 +37,7 @@
   const createOrUpdateFoodItem = async () => {
     try {
       if (isEditing) {
-        await axios.put(`http://localhost:3000/fooditems/${editingItemId}`, {
+        await axios.patch(`http://localhost:3000/fooditems/${editingItemId}`, {
           name,
           description,
           price,
@@ -67,22 +67,22 @@
     }
   };
 
-  const updateFoodItem = async (id) => {
-  try {
-    const response = await axios.put(`http://localhost:3000/fooditems/${id}`, {
-      name,
-      description,
-      price,
-      quantity,
-      image,
-      type,
-      category,
-    });
-    console.log("Food item updated successfully:", response.data);
-  } catch (error) {
-    console.error("Error creating/updating food item:", error);
-  }
-};
+//   const updateFoodItem = async (id) => {
+//   try {
+//     const response = await axios.put(`http://localhost:3000/fooditems/${id}`, {
+//       name,
+//       description,
+//       price,
+//       quantity,
+//       image,
+//       type,
+//       category,
+//     });
+//     console.log("Food item updated successfully:", response.data);
+//   } catch (error) {
+//     console.error("Error creating/updating food item:", error);
+//   }
+// };
 
   const fetchFoodItems = async () => {
     try {
@@ -112,6 +112,10 @@
     category = item.category._id;
     editingItemId = item._id;
     isEditing = true;
+    
+    
+    togglePopup();
+      
   };
 
   const clearForm = () => {
@@ -179,13 +183,14 @@
 
 </style> -->
 <!-- <div class="container mx-auto p-4 h-screen flex flex-col"> -->
-  <div class="container mx-auto p-4 h-[calc(100vh-100px)] flex flex-col">
+  <div class="container mx-auto p-4 h-[calc(100vh-75px)] flex flex-col">
   <!-- Button to open Form Popup -->
   <button
     class="mb-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition self-start"
     on:click={togglePopup}
   >
-    {isEditing ? 'Edit' : 'Create'} Food Item
+    <!-- {isEditing ? 'Edit' : 'Create'} Food Item -->
+     Create Food Item
   </button>
 
   <!-- Table Section -->
@@ -219,7 +224,7 @@
               <td class="px-4 py-2 flex space-x-2">
                 <button
                   class="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600 transition"
-                  on:click={() => editFoodItem(foodItem)}
+                  on:click={() =>{editFoodItem(foodItem); }}
                 >
                   Edit
                 </button>

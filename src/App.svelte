@@ -146,7 +146,7 @@
      </aside>
 
       <!-- Main Area -->
-      <main class="flex-grow p-6 overflow-hidden">
+      <main class="flex-grow p-3 overflow-hidden">
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
         <Route path="/protected" component={Protected} />
