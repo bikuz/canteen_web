@@ -1,20 +1,32 @@
 import { writable } from 'svelte/store';
 
 export const categories = writable([]);
-export const isLoading = writable(false); // For loading state
 
 const apiEndpoint = 'http://localhost:3000/categories'; 
 
-// Fetch all categories from the backend
+// Centralized API handler
+async function apiRequest(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Something went wrong');
+        }
+        return response.json();
+    } catch (error) {
+        console.error(error.message);
+        throw error; // Re-throw to handle in calling functions if needed
+    }
+}
+
+// Fetch all categories
 export async function fetchCategories() {
     isLoading.set(true);
     try {
-        const response = await fetch(apiEndpoint);
-        if (!response.ok) throw new Error('Failed to fetch categories');
-        const data = await response.json();
+        const data = await apiRequest(apiEndpoint);
         categories.set(data);
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        alert(`Error fetching categories: ${error.message}`);
     } finally {
         isLoading.set(false);
     }
@@ -25,50 +37,34 @@ export async function createCategory(category) {
     isLoading.set(true);
     try {
         const formData = new FormData();
-        // Assuming `category` is an object with keys `name` and `image`
-        for (const key in category) {
-            formData.append(key, category[key]);
-        }
+        Object.keys(category).forEach((key) => formData.append(key, category[key]));
 
-        const response = await fetch(apiEndpoint, {
+        const newCategory = await apiRequest(apiEndpoint, {
             method: 'POST',
-            body: formData // Set formData as the request body
+            body: formData,
         });
-
-        if (response.ok) {
-            const newCategory = await response.json(); // Assuming new category data is returned
-            categories.update((currentCategories) => [...currentCategories, newCategory]);
-        } else {
-            throw new Error('Failed to create category');
-        }
+        categories.update((current) => [...current, newCategory]);
     } catch (error) {
-        console.error('Error creating category:', error);
+        alert(`Error creating category: ${error.message}`);
     } finally {
         isLoading.set(false);
     }
 }
 
-
-// Update an existing category
+// Update a category
 export async function updateCategory(id, updatedCategory) {
     isLoading.set(true);
     try {
         const formData = new FormData();
-        for (const key in updatedCategory) {
-            formData.append(key, updatedCategory[key]);
-        }
+        Object.keys(updatedCategory).forEach((key) => formData.append(key, updatedCategory[key]));
 
-        const response = await fetch(`${apiEndpoint}/${id}`, {
+        await apiRequest(`${apiEndpoint}/${id}`, {
             method: 'PATCH',
-            body: formData //ok
+            body: formData,
         });
-        if (response.ok) {
-            fetchCategories();
-        } else {
-            throw new Error('Failed to update category');
-        }
+        fetchCategories(); // Refresh the categories
     } catch (error) {
-        console.error('Error updating category:', error);
+        alert(`Error updating category: ${error.message}`);
     } finally {
         isLoading.set(false);
     }
@@ -78,14 +74,10 @@ export async function updateCategory(id, updatedCategory) {
 export async function deleteCategory(id) {
     isLoading.set(true);
     try {
-        const response = await fetch(`${apiEndpoint}/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            fetchCategories();
-        } else {
-            throw new Error('Failed to delete category');
-        }
+        await apiRequest(`${apiEndpoint}/${id}`, { method: 'DELETE' });
+        fetchCategories(); // Refresh the categories
     } catch (error) {
-        console.error('Error deleting category:', error);
+        alert(`Error deleting category: ${error.message}`);
     } finally {
         isLoading.set(false);
     }

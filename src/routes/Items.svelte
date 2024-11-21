@@ -183,7 +183,7 @@
 
 </style> -->
 <!-- <div class="container mx-auto p-4 h-screen flex flex-col"> -->
-  <div class="container mx-auto p-4 h-[calc(100vh-75px)] flex flex-col">
+<div class="container mx-auto p-4 h-[calc(100vh-75px)] flex flex-col">
   <!-- Button to open Form Popup -->
   <button
     class="mb-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition self-start"
@@ -242,101 +242,103 @@
     </div>
   </div>
 
-  <!-- Popup Form Section -->
-  {#if isPopupOpen}
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white shadow-lg rounded px-8 py-6 w-full max-w-lg">
-        <h2 class="text-2xl font-semibold mb-4">{isEditing ? 'Edit' : 'Create'} Food Item</h2>
-        
-        <div class="mb-4">
-          <input
-            type="text"
-            placeholder="Name"
-            bind:value={name}
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div class="mb-4">
-          <input
-            type="text"
-            placeholder="Description"
-            bind:value={description}
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div class="mb-4">
-          <input
-            type="number"
-            placeholder="Price"
-            bind:value={price}
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div class="mb-4">
-          <input
-            type="number"
-            placeholder="Quantity"
-            bind:value={quantity}
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div class="mb-4">
-          <input
-            type="file"
-            accept="image/*"
-            on:change={(e) => file = e.target.files[0]}
-            required
-            class="w-full text-gray-600"
-          />
-        </div>
-
-        <div class="mb-4">
-          <select
-            bind:value={type}
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="single">Single</option>
-            <option value="combo">Combo</option>
-            <option value="buffet">Buffet</option>
-          </select>
-        </div>
-
-        <div class="mb-4">
-          <select
-            bind:value={category}
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="" disabled>Select Category</option>
-            {#each categories as categoryOption}
-              <option value={categoryOption._id}>{categoryOption.name}</option>
-            {/each}
-          </select>
-        </div>
-
-        <div class="flex justify-end space-x-4">
-          <button
-            class="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition"
-            on:click={togglePopup}
-          >
-            Cancel
-          </button>
-          <button
-            on:click={createOrUpdateFoodItem}
-            class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-          >
-            {isEditing ? 'Update' : 'Create'} Food Item
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
+ 
 </div>
+
+ <!-- Popup Form Section -->
+ {#if isPopupOpen}
+ <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+   <div class="bg-white shadow-lg rounded px-8 py-6 w-full max-w-lg">
+     <h2 class="text-2xl font-semibold mb-4">{isEditing ? 'Edit' : 'Create'} Food Item</h2>
+     
+     <div class="mb-4">
+       <input
+         type="text"
+         placeholder="Name"
+         bind:value={name}
+         required
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       />
+     </div>
+
+     <div class="mb-4">
+       <input
+         type="text"
+         placeholder="Description"
+         bind:value={description}
+         required
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       />
+     </div>
+
+     <div class="mb-4">
+       <input
+         type="number"
+         placeholder="Price"
+         bind:value={price}
+         required
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       />
+     </div>
+
+     <div class="mb-4">
+       <input
+         type="number"
+         placeholder="Quantity"
+         bind:value={quantity}
+         required
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       />
+     </div>
+
+     <div class="mb-4">
+       <input
+         type="file"
+         accept="image/*"
+         on:change={(e) => file = e.target.files[0]}
+         required
+         class="w-full text-gray-600"
+       />
+     </div>
+
+     <div class="mb-4">
+       <select
+         bind:value={type}
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       >
+         <option value="single">Single</option>
+         <option value="combo">Combo</option>
+         <option value="buffet">Buffet</option>
+       </select>
+     </div>
+
+     <div class="mb-4">
+       <select
+         bind:value={category}
+         required
+         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+       >
+         <option value="" disabled>Select Category</option>
+         {#each categories as categoryOption}
+           <option value={categoryOption._id}>{categoryOption.name}</option>
+         {/each}
+       </select>
+     </div>
+
+     <div class="flex justify-end space-x-4">
+       <button
+         class="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition"
+         on:click={togglePopup}
+       >
+         Cancel
+       </button>
+       <button
+         on:click={createOrUpdateFoodItem}
+         class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+       >
+         {isEditing ? 'Update' : 'Create'} Food Item
+       </button>
+     </div>
+   </div>
+ </div>
+{/if}
