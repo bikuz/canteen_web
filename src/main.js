@@ -1,6 +1,8 @@
 // src/main.js
 import './app.css';
+// import './fonts/font-awesome.css'
 import App from './App.svelte';
+
 
 
 

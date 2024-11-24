@@ -40,7 +40,8 @@
   import Login from './routes/Login.svelte';
   import Protected from './routes/Protected.svelte';
   import Home from './routes/Home.svelte';
-  import Categories from './routes/Categories.svelte';
+  // import Categories from './routes/Categories.svelte';
+  import Category from './routes/Category.svelte';
   import ItemManagement from './routes/Items.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
@@ -151,7 +152,7 @@
         <Route path="/login" component={Login} />
         <Route path="/protected" component={Protected} />
         <!-- <Route path="/" component={Home} /> -->
-        <Route path="/catMgmt" component={Categories} />
+        <Route path="/catMgmt" component={Category} />
         <Route path="/itemMgmt" component={ItemManagement} />
         <Route path="/dbAdmin" component={DashboardAdmin} />
         <!-- <Route path="/home" component={Home}/> -->
