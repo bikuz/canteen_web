@@ -109,20 +109,37 @@
         });
     }
 
-    async function fetchFoodItems() {
+    async function fetchFoodItems(page, limit) {
+        //  page/:page/limit/:limit
         await api.getItems({
-            endPoint: 'fooditems',
+            endPoint: `fooditems/page/${page}/limit/${limit}`,
             onSuccess: (data) => {
-                const pfooditems = data.map(category => ({
-                    ...category,
-                    _starttime: secondsToTime12(category.orderingStartTime),
-                    _endtime: secondsToTime12(category.orderingEndTime),
-                }));
-                foodItems.set(pfooditems);
+                foodItems.set(data.fooditems.map(fd => ({
+                ...fd,
+                _starttime: secondsToTime12(fd.orderingStartTime),
+                _endtime: secondsToTime12(fd.orderingEndTime),
+            })));
+            total=data.total;
+            totalPages = Math.ceil(total / limit); 
             },
-            onError: (error) => console.error('Error fetching food items:', error),
+            onError: (error) => console.error('Error fetching categories:', error),
         });
     }
+
+    // async function fetchFoodItems() {
+    //     await api.getItems({
+    //         endPoint: 'fooditems',
+    //         onSuccess: (data) => {
+    //             const pfooditems = data.map(category => ({
+    //                 ...category,
+    //                 _starttime: secondsToTime12(category.orderingStartTime),
+    //                 _endtime: secondsToTime12(category.orderingEndTime),
+    //             }));
+    //             foodItems.set(pfooditems);
+    //         },
+    //         onError: (error) => console.error('Error fetching food items:', error),
+    //     });
+    // }
 
     // Create a new fooditem
     async function createFoodItem() {
@@ -238,7 +255,7 @@
 
     onMount(() => {
         fetchCategories();
-        fetchFoodItems();
+        fetchFoodItems(currentPage, limit);
     });
 </script>
 
