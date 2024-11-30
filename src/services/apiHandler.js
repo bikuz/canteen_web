@@ -1,13 +1,52 @@
 const baseURL = 'http://localhost:3000';
 
 // Centralized API handler
+// export async function apiRequest(endPoint, options = {}) {
+//     try {
+//         const { method = 'GET', headers = {}, body = null } = options;
+
+//         const response = await fetch(`${baseURL}/${endPoint}`, {
+//             method,
+//             headers: {
+//                 'Content-Type': options.contentType || 'application/json', // Default to JSON
+//                 ...headers
+//             },
+//             body,
+//         });
+
+//         if (!response.ok) {
+//             const errorData = await response.json();
+//             throw new Error(errorData.message || `HTTP Error: ${response.status}`);
+//         }
+
+//         return await response.json();
+//     } catch (error) {
+//         console.error(`API Error: ${error.message}`);
+//         throw error; // Re-throw to handle in calling functions if needed
+//     }
+// }
 export async function apiRequest(endPoint, options = {}) {
     try {
-        const response = await fetch(`${baseURL}/${endPoint}`, options);
+        const { method = 'GET', headers = {}, body = null, contentType } = options;
+
+        // For multipart/form-data, we do not need to set Content-Type manually
+        if (contentType !== 'multipart/form-data') {
+            headers['Content-Type'] = contentType || 'application/json'; // Default to JSON
+        }
+
+        const response = await fetch(`${baseURL}/${endPoint}`, {
+            method,
+            headers: {
+                ...headers
+            },
+            body,
+        });
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || `HTTP Error: ${response.status}`);
         }
+
         return await response.json();
     } catch (error) {
         console.error(`API Error: ${error.message}`);
@@ -24,6 +63,20 @@ export function createFormData(item) {
     return formData;
 }
 
+// Utility function to create JSON body
+export function createJSONBody(item) {
+    return JSON.stringify(item);
+}
+
+// Utility function to create URL-encoded body
+export function createUrlEncodedBody(item) {
+    const urlEncoded = new URLSearchParams();
+    Object.keys(item).forEach((key) => {
+        urlEncoded.append(key, item[key]);
+    });
+    return urlEncoded.toString();
+}
+
 // Get items
 export async function getItems({ endPoint, onSuccess, onError, onFinally }) {
     try {
@@ -37,13 +90,23 @@ export async function getItems({ endPoint, onSuccess, onError, onFinally }) {
 }
 
 // Create an item
-export async function createItem(item, { endPoint, onSuccess, onError, onFinally }) {
+export async function createItem(item, { endPoint, contentType = 'application/json', onSuccess, onError, onFinally }) {
     try {
-        const formData = createFormData(item);
+        let body;
+        if (contentType === 'multipart/form-data') {
+            body = createFormData(item);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            body = createUrlEncodedBody(item);
+        } else {
+            body = createJSONBody(item);
+        }
+
         const newItem = await apiRequest(endPoint, {
             method: 'POST',
-            body: formData,
+            body,
+            contentType,
         });
+
         if (typeof onSuccess === 'function') onSuccess(newItem);
     } catch (error) {
         if (typeof onError === 'function') onError(error);
@@ -53,13 +116,23 @@ export async function createItem(item, { endPoint, onSuccess, onError, onFinally
 }
 
 // Update an item
-export async function updateItem(item, { endPoint, onSuccess, onError, onFinally }) {
+export async function updateItem(item, { endPoint, contentType = 'application/json', onSuccess, onError, onFinally }) {
     try {
-        const formData = createFormData(item);
+        let body;
+        if (contentType === 'multipart/form-data') {
+            body = createFormData(item);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            body = createUrlEncodedBody(item);
+        } else {
+            body = createJSONBody(item);
+        }
+
         const updatedItem = await apiRequest(`${endPoint}/${item.id}`, {
             method: 'PATCH',
-            body: formData,
+            body,
+            contentType,
         });
+
         if (typeof onSuccess === 'function') onSuccess(updatedItem);
     } catch (error) {
         if (typeof onError === 'function') onError(error);

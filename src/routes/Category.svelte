@@ -11,7 +11,7 @@
     let currentPage = 1; // Current active page
     let total=0;
     let totalPages = 0; // Total number of pages
-    let limit = '10';
+    let limit = '16';
     const visiblePages = 5; // Number of pages to display
     
     let newCategory = {
@@ -128,6 +128,7 @@
         try {
             await api.createItem(newCategory, {
                 endPoint: 'categories',
+                contentType:'multipart/form-data',
                 onSuccess: (data) => {
                     data._starttime= secondsToTime12(data.orderingStartTime),
                     data._endtime= secondsToTime12(data.orderingEndTime),
@@ -148,6 +149,7 @@
         try {
             await api.updateItem({ id: editingId, ...newCategory }, {
                 endPoint: 'categories',
+                contentType:'multipart/form-data',
                 onSuccess: (data) => {
                     data._starttime= secondsToTime12(data.orderingStartTime),
                     data._endtime= secondsToTime12(data.orderingEndTime),
@@ -447,10 +449,10 @@
                 class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg transition "
                 bind:value={limit}
                 on:change={(e) => updateLimit(e.target.value)}>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
+                    <option value="8">8</option>
+                    <option value="16">16</option>
+                    <option value="32">32</option>
+                    <option value="64">64</option>
                 </select>
             </div>
         </div>

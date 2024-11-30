@@ -146,6 +146,7 @@
         try {
             await api.createItem(newFoodItem, {
                 endPoint: 'fooditems',
+                contentType:'multipart/form-data',
                 onSuccess: (data) => {
                     data._starttime= secondsToTime12(data.orderingStartTime),
                     data._endtime= secondsToTime12(data.orderingEndTime),
@@ -164,6 +165,7 @@
         try {
             await api.updateItem({ id: editingId, ...newFoodItem }, {
                 endPoint: 'fooditems',
+                contentType:'multipart/form-data',
                 onSuccess: (data) => {
                     data._starttime= secondsToTime12(data.orderingStartTime),
                     data._endtime= secondsToTime12(data.orderingEndTime),
