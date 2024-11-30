@@ -4,8 +4,8 @@
     export let newMenu = {};
     export let formErrors = {};
     export let days = [];
-    export let lstFooditems = [];
-    export let isEveryday = false;
+    // export let lstFooditems = [];
+    export let isEveryday;
   
     export let resetForm;
     export let handleSave;

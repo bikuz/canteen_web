@@ -147,6 +147,7 @@
             // Deselect all days
             newMenu.repeatDay = [];
         }
+        let k=newMenu;
     }
     // Update Everyday checkbox based on individual day selections
     function updateEverydayStatus() {
@@ -326,17 +327,17 @@
 
 <!-- Popup form -->
 {#if isShowForm}
-<CreateEditForm
-    {isEditing}
-    {newMenu}
-    {formErrors}
-    {days}
-    {isEveryday}
-    resetForm={resetForm}
-    handleSave={handleSave}
-    toggleEveryday={toggleEveryday}
-    updateEverydayStatus={updateEverydayStatus}
-/>
+    <CreateEditForm
+        {isEditing}
+        {newMenu}
+        {formErrors}
+        {days}
+        bind:isEveryday
+        resetForm={resetForm}
+        handleSave={handleSave}
+        toggleEveryday={toggleEveryday}
+        updateEverydayStatus={updateEverydayStatus}
+    />
 {/if}
 
 <FooditemsMgmt
