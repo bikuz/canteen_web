@@ -1,4 +1,33 @@
 <script>
+    // // import Highcharts from 'highcharts';
+    // // import HighchartsSvelte from 'highcharts-svelte';
+    // import Highcharts from 'highcharts';
+    // import ExportingModule from 'highcharts/modules/exporting';
+    // // import { Chart } from '@highcharts/svelte'; // Chart is also exported by default
+
+    // // Applying a certain Highcharts module
+    // ExportingModule(Highcharts);
+
+    // Dummy data for category-wise sales
+    const salesData = [
+        { name: 'Electronics', y: 40 },
+        { name: 'Clothing', y: 30 },
+        { name: 'Groceries', y: 20 },
+        { name: 'Home Appliances', y: 10 },
+    ];
+
+    let options = {
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: 'My Chart'
+        },
+        series: [{
+            data: [1, 2, 3, 4, 5]
+        }]
+    };
+    
     // Example data for total and pending orders
     let totalOrders = 120;
     let pendingOrders = 35;
@@ -101,12 +130,14 @@
     <!-- Total and Pending Orders Display -->
     <div class="home-header">
         <div class="header-card">
-            <h2>Total Orders</h2>
-            <p>{totalOrders}</p>
+            <h2>Daily sales Chart</h2>
+            <!-- <p>{totalOrders}</p> -->
         </div>
         <div class="header-card">
-            <h2>Pending Orders</h2>
-            <p>{pendingOrders}</p>
+            <h2>Monthly Sales Chart</h2>
+            <!-- <p>{pendingOrders}</p> -->
+           
+            <!-- <Chart options={options} highcharts={Highcharts}/> -->
         </div>
     </div>
 

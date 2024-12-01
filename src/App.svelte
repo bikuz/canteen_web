@@ -44,6 +44,7 @@
   import Category from './routes/Category.svelte';
   import FoodItems from './routes/FoodItems.svelte';
   import Menu from './routes/Menu.svelte';
+  import Order from './routes/Order.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
   
 
@@ -109,6 +110,7 @@
           <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
           <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
+          <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
 
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
@@ -143,6 +145,7 @@
               <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
               <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
               <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
+              <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
 
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
@@ -159,6 +162,7 @@
         <Route path="/catMgmt" component={Category} />
         <Route path="/fooditemMgmt" component={FoodItems} />
         <Route path='/menuMgmt' component={Menu}/>
+        <Route path='/orderMgmt' component={Order}/>
         <Route path="/dbAdmin" component={DashboardAdmin} />
 
         <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
