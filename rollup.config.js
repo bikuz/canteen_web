@@ -34,12 +34,18 @@ function serve() {
 }
 
 export default {
+	// treeshake: true, 
 	input: 'src/main.js',
 	output: {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
 		file: 'public/build/bundle.js'
+		// format: 'es',  // Change from 'iife' to 'es' for code splitting
+		// dir: 'public/build',  // Output directory for the split chunks
+		// chunkFileNames: '[name]-[hash].js',  // Unique name for chunk files
+		// entryFileNames: '[name].js',  // Entry point file name
+		// assetFileNames: '[name][extname]',  // Asset file name pattern
 	},
 	plugins: [
 		svelte({

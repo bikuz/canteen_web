@@ -34,7 +34,7 @@
 
 <!-- src/App.svelte -->
 <script>
-  // import OrderForm from './OrderForm.svelte';
+
   import { Router, Link, Route, navigate } from 'svelte-routing';
   // import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
@@ -45,6 +45,9 @@
   import FoodItems from './routes/FoodItems.svelte';
   import Menu from './routes/Menu.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
+  
+
+
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
 
@@ -153,12 +156,18 @@
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
         <Route path="/protected" component={Protected} />
-        <!-- <Route path="/" component={Home} /> -->
         <Route path="/catMgmt" component={Category} />
         <Route path="/fooditemMgmt" component={FoodItems} />
         <Route path='/menuMgmt' component={Menu}/>
         <Route path="/dbAdmin" component={DashboardAdmin} />
-        <!-- <Route path="/home" component={Home}/> -->
+
+        <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
+          <Route path="/login" component={() => import('./routes/Login.svelte')} />
+          <Route path="/protected" component={() => import('./routes/Protected.svelte')} />
+          <Route path="/catMgmt" component={() => import('./routes/Category.svelte')} />
+          <Route path="/fooditemMgmt" component={() => import('./routes/FoodItems.svelte')} />
+          <Route path='/menuMgmt' component={() => import('./routes/Menu.svelte')} />
+          <Route path="/dbAdmin" component={() => import('./routes/Dashboard_admin.svelte')} /> -->
       </main>
     </div>
   </div>

@@ -20,8 +20,15 @@
     let isShowFoodPopup =false;
     // Handle pill click
     const selectDay = (day) => {
-        isCollapsed = isCollapsed ? false : isCollapsed;
-        selectedDay = day;
+        if(selectedDay == day){
+            isCollapsed = true;
+            selectedDay ='';
+        }
+        else{
+            isCollapsed = false; //? false : isCollapsed;
+            selectedDay = day;
+        }
+        
         fetchFooditemsByDay(selectedDay);
     };
     // Days of the week
