@@ -1,6 +1,8 @@
 <script>
     import { createEventDispatcher } from "svelte";
-  
+    import { navigate } from "$app/navigation";
+    import {Icon, MagnifyingGlass} from "svelte-hero-icons"
+
     const dispatch = createEventDispatcher();
   
     let startDate = "";
@@ -14,16 +16,31 @@
       dispatch("searchOrders", {
         startDate,
         endDate,
-        status: statusFilter,
-        paymentType: paymentTypeFilter,
-        category: categoryFilter,
+        statusFilter,
+        paymentTypeFilter,
+        categoryFilter,
       });
+    }
+
+    function openForm(){
+        navigate("/client/menu");
     }
   </script>
   
-  <div class="flex bg-gray-800 text-white p-4 w-full justify-between items-center">
+  <div class="flex bg-gray-800 text-white p-4 w-full justify-between items-center shadow-lg rounded-lg">
     <!-- Search Filters -->
     <div class="flex gap-4">
+
+      <div class="">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="block text-sm mb-1">&nbsp;</label>
+        <button class="mb-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg 
+          shadow-lg hover:bg-blue-700 transition-all duration-300"
+          on:click={openForm}>
+          Create Order
+        </button>
+      </div>
+
       <!-- Date Range -->
       <div>
         <label class="block text-sm mb-1">Start Date</label>
@@ -43,7 +60,7 @@
       </div>
   
       <div>
-        <label class="block text-sm mb-1">Token ID</label>
+        <label class="block text-sm mb-1">Token</label>
         <input
           type="text"
           bind:value={tokenid}
@@ -52,47 +69,67 @@
       </div>
 
       <!-- Status -->
-      <select
-        bind:value={statusFilter}
-        class="p-2 rounded-md text-gray-800"
-      >
-        <option value="">Status</option>
-        <option value="Pending">Pending</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
+       <div>
+        <label class="block text-sm mb-1">Status</label>
+        <select
+          bind:value={statusFilter}
+          class="p-2 rounded-md text-gray-800"
+        >
+          <option value="">None</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+       </div>
+      
   
       <!-- Payment Type -->
-      <select
-        bind:value={paymentTypeFilter}
-        class="p-2 rounded-md text-gray-800"
-      >
-        <option value="">Payment Type</option>
-        <option value="Credit Card">Credit Card</option>
-        <option value="Cash">Cash</option>
-        <option value="Other">Other</option>
-      </select>
+       <div>
+        <label class="block text-sm mb-1">Payment Method</label>
+        <select
+          bind:value={paymentTypeFilter}
+          class="p-2 rounded-md text-gray-800"
+        >
+          <option value="">None</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Cash">Cash</option>
+          <option value="Other">Other</option>
+        </select>
+       </div>
+      
   
       <!-- Categories -->
-      <select
-        bind:value={categoryFilter}
-        class="p-2 rounded-md text-gray-800"
-      >
-        <option value="">Categories</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Clothing">Clothing</option>
-        <option value="Groceries">Groceries</option>
-      </select>
+      <div>
+        <label class="block text-sm mb-1">Category</label>
+        <select
+          bind:value={categoryFilter}
+          class="p-2 rounded-md text-gray-800"
+        >
+          <option value="">None</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Groceries">Groceries</option>
+        </select>
+      </div>
     </div>
   
     <!-- Search Button -->
-    <div class="flex gap-2 ml-4">
-      <button
+    <div class="">
+      <label class="block text-sm mb-1">&nbsp;</label>
+      <!-- <button
         on:click={searchOrders}
-        class="bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600 transition"
+        class="flex items-center gap-2 bg-green-500 px-4 py-2 rounded-md hover:bg-blue-600 transition"
       >
-        Search
-      </button>
+        <Icon src={MagnifyingGlass} size="16" />
+        <span>Search</span>
+      </button> -->
+      <button class="flex items-center gap-2 mb-4 bg-green-600 text-white font-semibold py-2 px-4 rounded-lg 
+        shadow-lg hover:bg-blue-700 transition-all duration-300"
+        on:click={searchOrders}>
+        <Icon src={MagnifyingGlass} size="16" />
+        <span>Search</span>
+        </button>
     </div>
+    
   </div>
   

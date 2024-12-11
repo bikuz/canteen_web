@@ -26,7 +26,8 @@
 
     // Function to update filter values when search button is clicked
     function searchOrders(filters) {
-        ({ startDate, endDate, status: statusFilter, paymentType: paymentTypeFilter, category: categoryFilter } = filters);
+
+        ({ startDate, endDate, statusFilter, paymentTypeFilter, categoryFilter } = filters);
     }
 
     // Reactive filtered orders list
@@ -59,35 +60,36 @@
 
 
 <!-- Category List -->
-<div class="container mx-auto p-6 flex flex-col space-y-6 bg-gray-50 h-full">
-    <!-- Button Section -->
-    <div class="flex items-center justify-between">
-        <Header on:searchOrders={searchOrders} />
-        
-    </div>
+<div class="container mx-auto p-3 flex flex-col bg-gray-50 h-full">
+    
 
     <!-- Summary Cards Section -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-        <div class="bg-blue-100 border border-blue-300 rounded-md p-4">
-        <h3 class="text-blue-700 font-bold text-lg">Total Orders</h3>
-        <p class="text-blue-900 text-2xl font-semibold">{totalOrders}</p>
+    <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-2 pb-0">
+        <div class="bg-blue-100 border border-blue-300 rounded-md p-4 shadow-lg">
+            <h3 class="text-blue-700 font-bold text-lg">Total Orders</h3>
+            <p class="text-blue-900 text-2xl font-semibold">{totalOrders}</p>
         </div>
-        <div class="bg-yellow-100 border border-yellow-300 rounded-md p-4">
-        <h3 class="text-yellow-700 font-bold text-lg">Pending Orders</h3>
-        <p class="text-yellow-900 text-2xl font-semibold">{pendingOrders}</p>
+        <div class="bg-yellow-100 border border-yellow-300 rounded-md p-4 shadow-lg">
+            <h3 class="text-yellow-700 font-bold text-lg">Pending Orders</h3>
+            <p class="text-yellow-900 text-2xl font-semibold">{pendingOrders}</p>
         </div>
-        <div class="bg-green-100 border border-green-300 rounded-md p-4">
-        <h3 class="text-green-700 font-bold text-lg">Completed Orders</h3>
-        <p class="text-green-900 text-2xl font-semibold">{completedOrders}</p>
+        <div class="bg-green-100 border border-green-300 rounded-md p-4 shadow-lg">
+            <h3 class="text-green-700 font-bold text-lg">Completed Orders</h3>
+            <p class="text-green-900 text-2xl font-semibold">{completedOrders}</p>
         </div>
-        <div class="bg-red-100 border border-red-300 rounded-md p-4">
-        <h3 class="text-red-700 font-bold text-lg">Cancelled Orders</h3>
-        <p class="text-red-900 text-2xl font-semibold">{cancelledOrders}</p>
+        <div class="bg-red-100 border border-red-300 rounded-md p-4 shadow-lg">
+            <h3 class="text-red-700 font-bold text-lg">Cancelled Orders</h3>
+            <p class="text-red-900 text-2xl font-semibold">{cancelledOrders}</p>
         </div>
-    </div>
+    </div> -->
 
+    <!-- Button Section -->
+    <div class="flex items-center justify-between">
+        <Header on:searchOrders={(event)=>searchOrders(event.detail)} />
+        
+    </div>
     <!-- Categories Section -->
-    <div class="overflow-auto pr-4 ">
+    <div class="overflow-auto pr-4">
         <OrderList orders={filteredOrders} on:selectOrder={selectOrder} />
     
         <!-- Slide-in Panel -->

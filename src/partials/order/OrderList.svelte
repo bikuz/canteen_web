@@ -9,7 +9,7 @@
     }
   </script>
   
-  <div class="flex-1 overflow-auto p-4">
+  <div class="flex-1 overflow-auto p-4 ">
     <table class="table-auto w-full text-left border-collapse">
       <thead>
         <tr class="bg-gray-200">

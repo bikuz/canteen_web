@@ -1,5 +1,4 @@
- 
- <!--
+  <!--
  <script>
    import { onMount } from 'svelte';
    import { login } from '../services/auth';
@@ -31,10 +30,23 @@
    import { navigate } from 'svelte-routing';
    import { login,isAuthenticated } from './routes';   
    import Home from './Home.svelte';
+   import { onMount } from 'svelte';
 
    let username = '';
    let password = '';
    let isLdapUser = false; 
+   let rememberMe = false;
+
+   // Load saved credentials if they exist
+   onMount(() => {
+     const savedUsername = localStorage.getItem('username');
+     const savedPassword = localStorage.getItem('password');
+     if (savedUsername && savedPassword) {
+       username = savedUsername;
+       password = savedPassword;
+       rememberMe = true;
+     }
+   });
 
    async function loginUser() {
     // 'http://localhost:3000/auth/login/local'
@@ -52,6 +64,14 @@
      if (response.ok) {
        login(data.access_token);       
        navigate('/protected');
+       // Save credentials if "Remember Me" is checked
+       if (rememberMe) {
+         localStorage.setItem('username', username);
+         localStorage.setItem('password', password);
+       } else {
+         localStorage.removeItem('username');
+         localStorage.removeItem('password');
+       }
      } else {
        alert(data.message);
      }
@@ -82,6 +102,8 @@
           <label for="ldapCheckbox" class="text-gray-700">LDAP user</label>
         </div>
 
+
+
         <input
           class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Username"
@@ -95,6 +117,15 @@
           bind:value={password}
           on:keypress={handleKeyPress}
         />
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="rememberMeCheckbox"
+            bind:checked={rememberMe}
+            class="mr-2"
+          />
+          <label for="rememberMeCheckbox" class="text-gray-700">Remember Me</label>
+        </div>
         <button
           class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
           on:click={loginUser}

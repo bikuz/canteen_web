@@ -39,6 +39,7 @@
   // import Home from './routes/Home.svelte';
   import Login from './routes/Login.svelte';
   import Protected from './routes/Protected.svelte';
+   
   import Home from './routes/Home.svelte';
   // import Categories from './routes/Categories.svelte';
   import Category from './routes/Category.svelte';
@@ -47,10 +48,13 @@
   import Order from './routes/Order.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
   
+  import MenuClient from './routes/client/Menu.svelte';
+  import Cart from './routes/client/Cart.svelte';
 
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
+  import { cart } from './stores/cartStore';
 
   $: token = $isAuthenticated;
   let isSidebarOpen  = false;
@@ -91,6 +95,9 @@
   //  import { onDestroy } from 'svelte';
   //  onDestroy(() => document.removeEventListener('click', handleClickOutside));
 
+  // Calculate total items in cart
+  $: cartItemCount = $cart.reduce((sum, item) => sum + item.quantity, 0);
+
 </script>
 
 
@@ -111,6 +118,7 @@
           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
           <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
           <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
+          <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Client Menu</Link>
 
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
@@ -124,13 +132,29 @@
     <!-- Main Content -->
     <div class="flex flex-col flex-grow h-full overflow-hidden">
       <!-- Header -->
-      <header class="bg-gray-900 text-white p-4 shadow flex">
+      <header class="bg-gray-900 text-white p-4 shadow flex justify-between items-center">
         
         <!-- Mobile menu button -->
         <button class="lg:hidden text-white p-1" on:click={toggleSidebar}>
           <Icon src={Bars3} size="18" />
        </button>  
        <h1 class="text-lg ml-2">App Title</h1>    
+       
+       <!-- Cart indicator -->
+       {#if $isAuthenticated}
+           <div class="relative">
+               <Link to="/cart" class="flex items-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                   </svg>
+                   {#if cartItemCount > 0}
+                       <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                           {cartItemCount}
+                       </span>
+                   {/if}
+               </Link>
+           </div>
+       {/if}
       </header>
 
       
@@ -146,7 +170,8 @@
               <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
               <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
               <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
-
+              <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Client Menu</Link>
+              
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
               <Link to="/login" class="block p-2 rounded hover:bg-gray-700">Login</Link>
@@ -163,7 +188,9 @@
         <Route path="/fooditemMgmt" component={FoodItems} />
         <Route path='/menuMgmt' component={Menu}/>
         <Route path='/orderMgmt' component={Order}/>
+        <Route path='/client/menu' component={MenuClient}/>
         <Route path="/dbAdmin" component={DashboardAdmin} />
+        <Route path="/cart" component={Cart} />
 
         <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
           <Route path="/login" component={() => import('./routes/Login.svelte')} />
