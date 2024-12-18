@@ -1,88 +1,82 @@
-  <!--
- <script>
-   import { onMount } from 'svelte';
-   import { login } from '../services/auth';
-   import { isAuthenticated } from '../routes';
-
-   let username = '';
-   let password = '';
-
-   async function handleLogin() {
-     try {
-       await login(username, password);
-       isAuthenticated.set(true);
-       window.location.href = '/';
-     } catch (err) {
-       alert('Login failed');
-     }
-   }
- </script>
-
- <form on:submit|preventDefault={handleLogin}>
-   <input type="text" bind:value={username} placeholder="Username" required />
-   <input type="password" bind:value={password} placeholder="Password" required />
-   <button type="submit">Login</button>
- </form>
- -->
-
+  
  <!-- src/routes/Login.svelte -->
  <script>
    import { navigate } from 'svelte-routing';
-   import { login,isAuthenticated } from './routes';   
+   import { login, isAuthenticated } from './routes';   
    import Home from './Home.svelte';
    import { onMount } from 'svelte';
+   import {config } from '../../app.config';
 
    let username = '';
    let password = '';
    let isLdapUser = false; 
    let rememberMe = false;
+   let returnUrl = '/';
 
-   // Load saved credentials if they exist
-   onMount(() => {
-     const savedUsername = localStorage.getItem('username');
-     const savedPassword = localStorage.getItem('password');
-     if (savedUsername && savedPassword) {
-       username = savedUsername;
-       password = savedPassword;
-       rememberMe = true;
-     }
-   });
-
-   async function loginUser() {
-    // 'http://localhost:3000/auth/login/local'
-    const loginurl=isLdapUser?
-      'http://localhost:3000/auth/login/ldap':
-      'http://localhost:3000/auth/login/local'
-
-    const response = await fetch(loginurl, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ username, password }),
-     });
- 
-     const data = await response.json();
-     if (response.ok) {
-       login(data.access_token);       
-       navigate('/protected');
-       // Save credentials if "Remember Me" is checked
-       if (rememberMe) {
-         localStorage.setItem('username', username);
-         localStorage.setItem('password', password);
-       } else {
-         localStorage.removeItem('username');
-         localStorage.removeItem('password');
+   async function validateReturnUrl(url) {
+     try {
+       // Basic client-side sanitization
+       if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
+         return '/';
        }
-     } else {
-       alert(data.message);
+
+       // Server-side validation
+       const response = await fetch(
+         `${config.baseURL}/auth/validate-route?returnUrl=${encodeURIComponent(url)}`,
+         { method: 'GET' }
+       );
+
+       if (response.ok) {
+         const { safeUrl } = await response.json();
+         return safeUrl;
+       }
+
+       return '/';
+     } catch (e) {
+       console.error('Route validation failed:', e);
+       return '/';
      }
    }
 
-   // Function to handle Enter key press
+   async function loginUser() {
+    const loginurl = isLdapUser ?
+      `${config.baseURL}/auth/login/ldap` :
+      `${config.baseURL}/auth/login/local`
+
+    try {
+      const response = await fetch(loginurl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        login(data.access_token, data.refresh_token, rememberMe);
+        navigate(returnUrl);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert('Login failed. Please try again.');
+    }
+  }
+
+  // Function to handle Enter key press
   function handleKeyPress(event) {
     if (event.key === 'Enter') {
       loginUser();
     }
   }
+
+  onMount(async () => {
+     const params = new URLSearchParams(window.location.search);
+     const returnParam = params.get('returnUrl');
+     if (returnParam) {
+       returnUrl = await validateReturnUrl(returnParam);
+     }
+   });
+
  </script>
 
 <div class="bg-gray-100  flex flex-col items-center justify-center h-full">

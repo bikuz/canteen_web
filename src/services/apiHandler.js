@@ -1,37 +1,24 @@
-const baseURL = 'http://localhost:3000';
+import { getAccessToken } from './auth';
+import {config } from '../../app.config';
 
-// Centralized API handler
-// export async function apiRequest(endPoint, options = {}) {
-//     try {
-//         const { method = 'GET', headers = {}, body = null } = options;
+const baseURL = config.baseURL;
 
-//         const response = await fetch(`${baseURL}/${endPoint}`, {
-//             method,
-//             headers: {
-//                 'Content-Type': options.contentType || 'application/json', // Default to JSON
-//                 ...headers
-//             },
-//             body,
-//         });
 
-//         if (!response.ok) {
-//             const errorData = await response.json();
-//             throw new Error(errorData.message || `HTTP Error: ${response.status}`);
-//         }
-
-//         return await response.json();
-//     } catch (error) {
-//         console.error(`API Error: ${error.message}`);
-//         throw error; // Re-throw to handle in calling functions if needed
-//     }
-// }
 export async function apiRequest(endPoint, options = {}) {
     try {
         const { method = 'GET', headers = {}, body = null, contentType } = options;
 
+        // Get the access token
+        const accessToken = getAccessToken();
+        
         // For multipart/form-data, we do not need to set Content-Type manually
         if (contentType !== 'multipart/form-data') {
-            headers['Content-Type'] = contentType || 'application/json'; // Default to JSON
+            headers['Content-Type'] = contentType || 'application/json';
+        }
+
+        // Add Authorization header if token exists
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         const response = await fetch(`${baseURL}/${endPoint}`, {
@@ -50,7 +37,7 @@ export async function apiRequest(endPoint, options = {}) {
         return await response.json();
     } catch (error) {
         console.error(`API Error: ${error.message}`);
-        throw error; // Re-throw to handle in calling functions if needed
+        throw error;
     }
 }
 
@@ -89,8 +76,33 @@ export async function getItems({ endPoint, onSuccess, onError, onFinally }) {
     }
 }
 
+export async function postItems(items,{ endPoint, onSuccess, onError, onFinally, contentType = 'application/json' }) {
+    try {
+        let body;
+        if (contentType === 'multipart/form-data') {
+            body = createFormData(items);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            body = createUrlEncodedBody(items);
+        } else {
+            body = createJSONBody(items);
+        }
+
+        const newitems = await apiRequest(endPoint, {
+             method: 'POST', 
+             body, 
+             contentType
+         });
+
+        if (typeof onSuccess === 'function') onSuccess(newitems);
+    } catch (error) {
+        if (typeof onError === 'function') onError(error);
+    } finally {
+        if (typeof onFinally === 'function') onFinally();
+    }
+}
+
 // Create an item
-export async function createItem(item, { endPoint, contentType = 'application/json', onSuccess, onError, onFinally }) {
+export async function createItem(item, { endPoint, onSuccess, onError, onFinally, contentType = 'application/json' }) {
     try {
         let body;
         if (contentType === 'multipart/form-data') {

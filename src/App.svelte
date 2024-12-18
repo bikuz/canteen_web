@@ -1,38 +1,3 @@
-<!-- 
-<script>
-  import OrderList from './OrderList.svelte';
-  import OrderForm from './OrderForm.svelte';
-</script>
-
-<main>
-  <h1>Canteen Order Management</h1>
-  <OrderForm />
-  <OrderList />
-</main>
-
-<style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4em;
-    font-weight: 100;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
-  }
-</style> -->
-
-<!-- src/App.svelte -->
 <script>
 
   import { Router, Link, Route, navigate } from 'svelte-routing';
@@ -50,13 +15,18 @@
   
   import MenuClient from './routes/client/Menu.svelte';
   import Cart from './routes/client/Cart.svelte';
-
+  import OrderHistory from './routes/client/OrderHistory.svelte';
+  import OrderDetail from './routes/client/OrderDetail.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
   import { cart } from './stores/cartStore';
+  import { onMount, beforeUpdate } from 'svelte';
+  import { getAccessToken, resetInactivityTimer } from './services/auth';
+  import ProtectedRoute from './partials/components/ProtectedRoute.svelte';
 
-  $: token = $isAuthenticated;
+
+  // $: token = $isAuthenticated;
   let isSidebarOpen  = false;
   
 
@@ -98,6 +68,65 @@
   // Calculate total items in cart
   $: cartItemCount = $cart.reduce((sum, item) => sum + item.quantity, 0);
 
+
+
+  // List of events to monitor for user activity
+  // const activityEvents = [
+  //   'mousedown',
+  //   'mousemove',
+  //   'keypress',
+  //   'scroll',
+  //   'touchstart'
+  // ];
+
+  // Add a function to check authentication
+  function checkAuth(path) {
+    // List of public routes that don't require authentication
+    const publicRoutes = ['/', '/login'];
+    
+    // If it's not a public route and user is not authenticated, redirect to login
+    if (!publicRoutes.includes(path) && !getAccessToken()) {
+      const returnUrl = encodeURIComponent(path);
+      navigate(`/login?returnUrl=${returnUrl}`);
+    }
+  }
+
+  // Add route protection
+  beforeUpdate(() => {
+    // Get current path
+    const path = window.location.pathname;
+    checkAuth(path);
+  });
+
+  onMount(() => {
+    // Initial auth check
+    const path = window.location.pathname;
+    checkAuth(path);
+
+    // Listen for session expiration
+    const handleSessionExpired = () => {
+      isAuthenticated.set(false);
+      const currentPath = window.location.pathname;
+      const returnUrl = encodeURIComponent(currentPath);
+      navigate(`/login?returnUrl=${returnUrl}`);
+      alert('Your session has expired. Please log in again.');
+    };
+
+    window.addEventListener('session-expired', handleSessionExpired);
+
+    // Cleanup on component destroy
+    return () => {
+      window.removeEventListener('session-expired', handleSessionExpired);
+    };
+  });
+
+  // window.addEventListener('session-warning', () => {
+  //   const stay = confirm('Your session will expire in 1 minute. Do you want to stay logged in?');
+  //   if (stay) {
+  //     resetInactivityTimer();
+  //   }
+  // });
+
 </script>
 
 
@@ -118,8 +147,8 @@
           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
           <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
           <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
-          <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Client Menu</Link>
-
+          <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
+          <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
             Logout
           </button>
@@ -170,7 +199,8 @@
               <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
               <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
               <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
-              <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Client Menu</Link>
+              <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
+              <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
               
               <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
            {:else}
@@ -183,15 +213,17 @@
       <main class="flex-grow p-3 overflow-hidden">
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
-        <Route path="/protected" component={Protected} />
-        <Route path="/catMgmt" component={Category} />
-        <Route path="/fooditemMgmt" component={FoodItems} />
-        <Route path='/menuMgmt' component={Menu}/>
-        <Route path='/orderMgmt' component={Order}/>
-        <Route path='/client/menu' component={MenuClient}/>
-        <Route path="/dbAdmin" component={DashboardAdmin} />
-        <Route path="/cart" component={Cart} />
-
+        <ProtectedRoute path="/protected" component={Protected} />
+        <ProtectedRoute path="/catMgmt" component={Category} />
+        <ProtectedRoute path="/fooditemMgmt" component={FoodItems} />
+        <ProtectedRoute path='/menuMgmt' component={Menu}/>
+        <ProtectedRoute path='/orderMgmt' component={Order}/>
+        <ProtectedRoute path="/dbAdmin" component={DashboardAdmin} />
+        <ProtectedRoute path="/cart" component={Cart} />
+        <ProtectedRoute path='/client/menu' component={MenuClient}/>
+        <ProtectedRoute path="/client/orderHistory" component={OrderHistory} />
+        <ProtectedRoute path="/client/orderDetail/:orderId" component={OrderDetail} />
+        
         <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
           <Route path="/login" component={() => import('./routes/Login.svelte')} />
           <Route path="/protected" component={() => import('./routes/Protected.svelte')} />

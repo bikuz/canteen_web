@@ -5,6 +5,7 @@
     import { slide } from 'svelte/transition';
     import { quintOut } from 'svelte/easing';
     import { cart } from '../../stores/cartStore';
+    import { Rss } from 'svelte-hero-icons';
 
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     let todayIndex = new Date().getDay();
@@ -162,7 +163,7 @@
                                     <div class="p-3">
                                         <h3 class="text-base font-semibold">{item.name}</h3>
                                         <p class="text-gray-600 text-xs mt-1">{item.description}</p>
-                                        <p class="text-blue-600 font-medium mt-1">${item.price}</p>
+                                        <p class="text-blue-600 font-medium mt-1">Rs. {item.price}</p>
                                     </div>
                                 </div>
                             {/each}
@@ -216,7 +217,7 @@
                         <div class="space-y-4">
                             <h2 class="text-2xl font-bold">{selectedItem.name}</h2>
                             <p class="text-gray-600">{selectedItem.description}</p>
-                            <p class="text-2xl font-bold text-blue-600">${selectedItem.price}</p>
+                            <p class="text-2xl font-bold text-blue-600">Rs. {selectedItem.price}</p>
 
                             <!-- Action Buttons -->
                             <div class="flex space-x-4 pt-4">
