@@ -561,7 +561,7 @@
                     </div>
                 {/if}
                 <p class="text-sm">
-                    <span class="font-bold text-gray-800">Rs. {fi.price}</span>
+                    <span class="font-bold text-blue-600">Rs. {fi.price}</span>
                 </p>
                 <p class="text-sm">
                     <span class=" text-gray-600">Category: </span>

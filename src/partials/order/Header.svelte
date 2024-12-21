@@ -1,13 +1,13 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { navigate } from "$app/navigation";
+    
     import {Icon, MagnifyingGlass} from "svelte-hero-icons"
 
     const dispatch = createEventDispatcher();
   
     let startDate = "";
     let endDate = "";
-    let tokenid="";
+    // let tokenid="";
     let statusFilter = "";
     let paymentTypeFilter = "";
     let categoryFilter = "";
@@ -22,24 +22,14 @@
       });
     }
 
-    function openForm(){
-        navigate("/client/menu");
-    }
+
   </script>
   
-  <div class="flex bg-gray-800 text-white p-4 w-full justify-between items-center shadow-lg rounded-lg">
+  <div class="flex bg-gray-800 text-white p-4 pb-0 w-full justify-between items-center shadow-lg rounded-lg">
     <!-- Search Filters -->
     <div class="flex gap-4">
 
-      <div class="">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="block text-sm mb-1">&nbsp;</label>
-        <button class="mb-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg 
-          shadow-lg hover:bg-blue-700 transition-all duration-300"
-          on:click={openForm}>
-          Create Order
-        </button>
-      </div>
+      
 
       <!-- Date Range -->
       <div>
@@ -59,14 +49,14 @@
         />
       </div>
   
-      <div>
+      <!-- <div>
         <label class="block text-sm mb-1">Token</label>
         <input
           type="text"
           bind:value={tokenid}
           class="p-2 rounded-md text-gray-800"
         />
-      </div>
+      </div> -->
 
       <!-- Status -->
        <div>
@@ -111,8 +101,7 @@
           <option value="Groceries">Groceries</option>
         </select>
       </div>
-    </div>
-  
+
     <!-- Search Button -->
     <div class="">
       <label class="block text-sm mb-1">&nbsp;</label>
@@ -130,6 +119,11 @@
         <span>Search</span>
         </button>
     </div>
+
+
+    </div>
+  
+    
     
   </div>
   

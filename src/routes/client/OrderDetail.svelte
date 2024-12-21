@@ -1,12 +1,14 @@
 <script>
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
-    import { getItems, postItems, updateItem } from '../../services/apiHandler';
+    import { getItems, postItems, patchItem } from '../../services/apiHandler';
     import { navigate } from 'svelte-routing';
 
     export let orderId;
     let order = null;
     let isLoading = true;
+    let showCancelDialog = false;
+    let cancelReason = '';
 
     onMount(async () => {
         try {
@@ -32,24 +34,32 @@
     }
 
     function goBack() {
-        navigate('/order-history');
+        navigate('/client/orderHistory');
     }
 
     async function cancelOrder() {
-        if (!confirm('Are you sure you want to cancel this order?')) {
+        if (!cancelReason.trim()) {
+            alert('Please provide a reason for cancellation');
             return;
         }
 
         try {
-            await updateItem(
-                { orderId: order._id },
+            await patchItem(
+                { cancelReason: cancelReason.trim() },
                 {
-                    endPoint: 'orders/cancelOrder',
+                    contentType: 'multipart/form-data',
+                    endPoint: `orders/cancel/${orderId}`,                    
                     onSuccess: (response) => {
-                        if (response.success) {
-                            order = { ...order, status: 'cancelled' };
+                        if(response.success){
+                            order = { ...order, paymentStatus: 'cancelled' };
+                            showCancelDialog = false;
+                            cancelReason = '';
                             alert('Order cancelled successfully');
                         }
+                        else{
+                            alert(response.message);
+                        }
+                        
                     },
                     onError: (error) => {
                         alert(error.message || 'Failed to cancel order');
@@ -61,11 +71,16 @@
             alert('Failed to cancel order. Please try again later.');
         }
     }
+
+    function showCancelPrompt() {
+        showCancelDialog = true;
+    }
 </script>
 
-<div class="container mx-auto p-4 max-w-4xl">
+<div class="container mx-auto p-4 max-w-4xl ">
     <button 
-        class="mb-4 flex items-center text-blue-600 hover:text-blue-800"
+        class="p-3 mb-2 flex items-center bg-blue-500 text-gray-50
+         hover:text-blue-800 hover:bg-slate-200 transition-all duration-300 ease-in-out"
         on:click={goBack}
     >
         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,27 +98,29 @@
             <p class="text-gray-500">Order not found</p>
         </div>
     {:else}
-        <div class="bg-white rounded-lg shadow p-6" transition:fade>
+        <div class="bg-white rounded-lg shadow p-4" transition:fade>
             <div class="border-b pb-4 mb-4">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h1 class="text-xl font-bold">Order #{order.token}</h1>
-                        <p class="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                        <h1 class="text-xl font-bold">#{order.shortId}</h1>
+                        <p class="text-smtext-gray-600">{formatDate(order.createdAt)}</p>
+                        <h1 class="text-xl font-bold mt-3 text-blue-600">Token: {order.token}</h1>
+                        
                     </div>
                     <div class="text-right flex flex-col gap-2">
                         <p class="text-sm px-3 py-1 rounded-full {
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                            order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                            order.paymentStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            order.paymentStatus === 'cancelled' ? 'bg-red-100 text-red-800' :
                             'bg-gray-100 text-gray-800'
                         }">
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </p>
                         
-                        {#if !order.isCancelAllowed && order.status !== 'cancelled'}
+                        {#if order.isCancelAllowed && order.paymentStatus !== 'cancelled'}
                             <button 
                                 class="text-sm px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                on:click={cancelOrder}
+                                on:click={showCancelPrompt}
                             >
                                 Cancel Order
                             </button>
@@ -113,7 +130,7 @@
             </div>
 
             <!-- Order Items -->
-            <div class="space-y-4">
+            <div class="space-y-4 max-h-80 overflow-y-auto">
                 {#each order.foodItems as item, index}
                     <div class="flex items-center space-x-4">
                         <!-- <div class="w-16 h-16 flex-shrink-0">
@@ -133,7 +150,7 @@
                             <h3 class="font-semibold">{item.name}</h3>
                             <p class="text-sm text-gray-600">Rs. {item.price} × {order.quantities[index]}</p>
                         </div>
-                        <div class="text-right">
+                        <div class="text-right pr-4">
                             <p class="font-semibold">Rs. {(item.price * order.quantities[index]).toFixed(2)}</p>
                         </div>
                     </div>
@@ -147,6 +164,39 @@
                     <p>Rs. {order.totalPrice.toFixed(2)}</p>
                 </div>
                 <p class="text-sm text-gray-600 mt-2">Payment Method: <strong>{order.paymentMethod}</strong></p>
+            </div>
+        </div>
+    {/if}
+
+    {#if showCancelDialog}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full">
+                <h2 class="text-xl font-bold mb-4">Cancel Order</h2>
+                <p class="text-gray-600 mb-4">Please provide a reason for cancellation:</p>
+                
+                <textarea
+                    bind:value={cancelReason}
+                    class="w-full p-2 border rounded-lg mb-4 h-32 resize-none"
+                    placeholder="Enter cancellation reason..."
+                ></textarea>
+                
+                <div class="flex justify-end space-x-4">
+                    <button 
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        on:click={() => {
+                            showCancelDialog = false;
+                            cancelReason = '';
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                        on:click={cancelOrder}
+                    >
+                        Confirm Cancellation
+                    </button>
+                </div>
             </div>
         </div>
     {/if}

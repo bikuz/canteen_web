@@ -78,9 +78,13 @@
                         Your token number is: ${response.order.token}\nPlease 
                         remember this token number for payment.`);
                         
+                        //hide invoice popup
+                        showInvoicePopup = false;
+
                         // Remove ordered items from cart and clear selection
                         selectedItems.forEach(itemId => cart.removeItem(itemId));
                         selectedItems.clear();
+
                     } else {
                         // Filter available items and show them to user
                         const availableItems = selectedItemsData.filter(item => 

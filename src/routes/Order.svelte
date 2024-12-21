@@ -1,9 +1,9 @@
 <script>
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
+    import { navigate } from "$app/navigation";
+
     import * as api from '../services/apiHandler';
-    // import {imageUpload} from '../services/imgHandler'
-    // import {secondsToTime12,secondsToTime24, timeToSeconds} from '../services/dateTimeHandler'
     import Header from '../partials/order/Header.svelte';
     import OrderList from '../partials/order/OrderList.svelte';
     import OrderDetails from '../partials/order/OrderDetails.svelte';
@@ -49,6 +49,10 @@
         selectedOrder = order;
     }
 
+    function gotoMenu(){
+        navigate("/client/menu");
+    }
+
     // Computed counts for cards
     $: totalOrders = orders.length;
     $: pendingOrders = orders.filter(order => order.status === "Pending").length;
@@ -90,6 +94,15 @@
     </div>
     <!-- Categories Section -->
     <div class="overflow-auto pr-4">
+        <div class="">
+           
+            <button class="mt-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg 
+              shadow-lg hover:bg-blue-700 transition-all duration-300"
+              on:click={gotoMenu}>
+              Create Order
+            </button>
+          </div>
+
         <OrderList orders={filteredOrders} on:selectOrder={selectOrder} />
     
         <!-- Slide-in Panel -->

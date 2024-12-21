@@ -17,6 +17,8 @@
   import Cart from './routes/client/Cart.svelte';
   import OrderHistory from './routes/client/OrderHistory.svelte';
   import OrderDetail from './routes/client/OrderDetail.svelte';
+  import PaymentDashboard from './routes/PaymentDashboard.svelte';
+  import MakePayment from './routes/MakePayment.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
@@ -24,6 +26,7 @@
   import { onMount, beforeUpdate } from 'svelte';
   import { getAccessToken, resetInactivityTimer } from './services/auth';
   import ProtectedRoute from './partials/components/ProtectedRoute.svelte';
+
 
 
   // $: token = $isAuthenticated;
@@ -147,6 +150,9 @@
           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
           <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
           <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
+          <Link to="/payMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Payment Management</Link>
+          <Link to="/make-payment" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Payment</Link>
+
           <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
           <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
           <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
@@ -167,7 +173,7 @@
         <button class="lg:hidden text-white p-1" on:click={toggleSidebar}>
           <Icon src={Bars3} size="18" />
        </button>  
-       <h1 class="text-lg ml-2">App Title</h1>    
+       <h1 class="text-lg ml-2 uppercase ">Canteen Food Ordering System</h1>    
        
        <!-- Cart indicator -->
        {#if $isAuthenticated}
@@ -199,6 +205,9 @@
               <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
               <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
               <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
+              <Link to="/payMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Payment Management</Link>
+              <Link to="/make-payment" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Payment</Link>  
+
               <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
               <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
               
@@ -223,6 +232,8 @@
         <ProtectedRoute path='/client/menu' component={MenuClient}/>
         <ProtectedRoute path="/client/orderHistory" component={OrderHistory} />
         <ProtectedRoute path="/client/orderDetail/:orderId" component={OrderDetail} />
+        <ProtectedRoute path="/payMgmt" component={PaymentDashboard} />
+        <Route path="/make-payment" component={MakePayment} />
         
         <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
           <Route path="/login" component={() => import('./routes/Login.svelte')} />

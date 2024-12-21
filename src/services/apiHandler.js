@@ -101,6 +101,7 @@ export async function postItems(items,{ endPoint, onSuccess, onError, onFinally,
     }
 }
 
+
 // Create an item
 export async function createItem(item, { endPoint, onSuccess, onError, onFinally, contentType = 'application/json' }) {
     try {
@@ -153,10 +154,37 @@ export async function updateItem(item, { endPoint, contentType = 'application/js
     }
 }
 
+// Update an item
+export async function patchItem(item, { endPoint, contentType = 'application/json', onSuccess, onError, onFinally }) {
+    try {
+        let body;
+        if (contentType === 'multipart/form-data') {
+            body = createFormData(item);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            body = createUrlEncodedBody(item);
+        } else {
+            body = createJSONBody(item);
+        }
+
+        const updatedItem = await apiRequest(endPoint, {
+            method: 'PATCH',
+            body,
+            contentType,
+        });
+
+        if (typeof onSuccess === 'function') onSuccess(updatedItem);
+    } catch (error) {
+        if (typeof onError === 'function') onError(error);
+    } finally {
+        if (typeof onFinally === 'function') onFinally();
+    }
+}
+
 // Delete an item
 export async function deleteItem(id, { endPoint, onSuccess, onError, onFinally }) {
     try {
-        const data = await apiRequest(`${endPoint}/${id}`, { method: 'DELETE' });
+        const data = await apiRequest(`${endPoint}/${id}`,
+             { method: 'DELETE' });
         if (typeof onSuccess === 'function') onSuccess(data);
     } catch (error) {
         if (typeof onError === 'function') onError(error);
