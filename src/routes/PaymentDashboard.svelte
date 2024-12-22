@@ -188,7 +188,7 @@
                         <p class="text-2xl font-bold text-green-700">{statistics.paidOrders}</p>
                         <p class="text-lg font-semibold text-green-700">{formatCurrency(statistics.paidAmount)}</p>
                     {:else}
-                        <p class="text-sm text-green-700">Click to view paid orders</p>
+                        <p class="text-sm font-bold text-green-700">Click to view</p>
                     {/if}
                 </div>
             </div>
@@ -205,7 +205,7 @@
                         <p class="text-2xl font-bold text-yellow-700">{statistics.pendingOrders}</p>
                         <p class="text-lg font-semibold text-yellow-700">{formatCurrency(statistics.pendingAmount)}</p>
                     {:else}
-                        <p class="text-sm text-yellow-700">Click to view pending orders</p>
+                        <p class="text-sm font-bold text-yellow-700">Click to view</p>
                     {/if}
                 </div>
             </div>
@@ -222,18 +222,18 @@
                         <p class="text-2xl font-bold text-red-700">{statistics.cancelledOrders}</p>
                         <p class="text-lg font-semibold text-red-700">{formatCurrency(statistics.cancelledAmount)}</p>
                     {:else}
-                        <p class="text-sm text-red-700">Click to view cancelled orders</p>
+                        <p class="text-sm font-bold text-red-700">Click to view</p>
                     {/if}
                 </div>
             </div>
         </div>
 
         <!-- Recent Transactions -->
-        <div class="bg-white rounded-lg shadow p-4">
-            <h2 class="text-xl font-semibold mb-2">Recent Transactions</h2>
-            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+        <div class="bg-white rounded-lg shadow p-4 flex flex-col max-h-[calc(100vh-17rem)]">
+            <h2 class="text-xl font-semibold mb-2 flex-shrink-0">Recent Transactions</h2>
+            <div class="overflow-x-auto flex-grow overflow-y-auto">
                 <table class="min-w-full">
-                    <thead>
+                    <thead class="sticky top-0">
                         <tr class="bg-gray-50">
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
@@ -249,13 +249,13 @@
                                 class="hover:bg-gray-50 cursor-pointer"
                                 on:click={() => showOrderDetail(order)}
                             >
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-2 whitespace-nowrap">
                                     #{order.shortId}
                                     <p class="text-sm text-gray-500 mt-1">{formatDate(order.createdAt)}</p>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">{order.userProfile.firstName} {order.userProfile.lastName}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{formatCurrency(order.totalPrice)}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-2 whitespace-nowrap">{order.userProfile.firstName} {order.userProfile.lastName}</td>
+                                <td class="px-6 py-2 whitespace-nowrap">{formatCurrency(order.totalPrice)}</td>
+                                <td class="px-6 py-2 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                         {order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
                                         order.paymentStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -264,8 +264,8 @@
                                         {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap capitalize">{order.paymentMethod}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{order.token}</td>
+                                <td class="px-6 py-2 whitespace-nowrap capitalize">{order.paymentMethod}</td>
+                                <td class="px-6 py-2 whitespace-nowrap">{order.token}</td>
                             </tr>
                         {/each}
                     </tbody>
@@ -285,7 +285,7 @@
                 class="fixed right-0 top-0 h-full w-full md:w-1/2 lg:w-1/3 bg-white z-50 shadow-xl"
                 transition:slide={{ duration: 300, easing: quintOut, axis: 'x' }}
             >
-                <div class="h-full overflow-y-auto p-6">
+                <div class="h-full flex flex-col p-6">
                     <!-- Close Button -->
                     <button 
                         class="absolute top-4 right-4 bg-red-600 text-gray-50 hover:text-gray-700"
@@ -296,45 +296,43 @@
                         </svg>
                     </button>
 
-                    <!-- Order Details -->
-                    <div class="space-y-6 ">
-                        <h2 class="text-2xl font-bold mb-4">Order #{selectedOrder.shortId}</h2>
+                    <!-- Order ID (Fixed at the top) -->
+                    <h2 class="text-2xl font-bold mb-4 flex-shrink-0">Order #{selectedOrder.shortId}</h2>
 
-                        <div class="space-y-6 max-h-96 overflow-y-auto">
-                            <!-- Customer Information -->
-                            <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
-                                <h3 class="text-lg font-semibold">Customer Information</h3>
-                                <p class="text-gray-600">Name: {selectedOrder.userProfile.firstName} {selectedOrder.userProfile.lastName}</p>
-                                <p class="text-gray-600">Email: {selectedOrder.userProfile.email}</p>
-                                <p class="text-gray-600">Phone: {selectedOrder.userProfile.phoneNumber}</p>
-                            </div>
-
-                            <!-- Order Information -->
-                            <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
-                                <h3 class="text-lg font-semibold">Order Information</h3>
-                                <p class="text-gray-600">Date: {formatDate(selectedOrder.createdAt)}</p>
-                                <p class="text-gray-600">Status: {selectedOrder.paymentStatus}</p>
-                                <p class="text-gray-600">Method: {selectedOrder.paymentMethod}</p>
-                                <p class="text-gray-600">Token: {selectedOrder.token}</p>
-                            </div>
-
-                            <!-- Order Items -->
-                            <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
-                                <h3 class="text-lg font-semibold">Order Items</h3>
-                                <ul class="list-disc list-inside">
-                                    {#each selectedOrder.foodItems as item, index}
-                                        <li class="text-gray-600">{item.name} - {selectedOrder.quantities[index]} x {formatCurrency(item.price)}</li>
-                                    {/each}
-                                </ul>
-                            </div>
-                        </div>
-                        
-
-                        <!-- Total Amount -->
+                    <!-- Scrollable Content -->
+                    <div class="flex-grow overflow-y-auto space-y-6">
+                        <!-- Customer Information -->
                         <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold">Total Amount</h3>
-                            <p class="text-2xl font-bold text-blue-600">{formatCurrency(selectedOrder.totalPrice)}</p>
+                            <h3 class="text-lg font-semibold">Customer Information</h3>
+                            <p class="text-gray-600">Name: {selectedOrder.userProfile.firstName} {selectedOrder.userProfile.lastName}</p>
+                            <p class="text-gray-600">Email: {selectedOrder.userProfile.email}</p>
+                            <p class="text-gray-600">Phone: {selectedOrder.userProfile.phoneNumber}</p>
                         </div>
+
+                        <!-- Order Information -->
+                        <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold">Order Information</h3>
+                            <p class="text-gray-600">Date: {formatDate(selectedOrder.createdAt)}</p>
+                            <p class="text-gray-600">Status: {selectedOrder.paymentStatus}</p>
+                            <p class="text-gray-600">Method: {selectedOrder.paymentMethod}</p>
+                            <p class="text-gray-600">Token: {selectedOrder.token}</p>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="space-y-2 bg-blue-100 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold">Order Items</h3>
+                            <ul class="list-disc list-inside">
+                                {#each selectedOrder.foodItems as item, index}
+                                    <li class="text-gray-600">{item.name} - {selectedOrder.quantities[index]} x {formatCurrency(item.price)}</li>
+                                {/each}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Total Amount (Fixed at the bottom) -->
+                    <div class="space-y-2  p-4 rounded-lg flex-shrink-0">
+                        <h3 class="text-lg font-semibold">Total Amount</h3>
+                        <p class="text-2xl font-bold text-blue-600">{formatCurrency(selectedOrder.totalPrice)}</p>
                     </div>
                 </div>
             </div>

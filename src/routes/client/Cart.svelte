@@ -3,15 +3,17 @@
     import { slide, fade } from 'svelte/transition';
     import { createItem, postItems } from '../../services/apiHandler';
     import { onMount } from 'svelte';
-    import { Rss } from 'svelte-hero-icons';
+    import { navigate } from 'svelte-routing';
+    
 
-    // Add selected items tracking
     let selectedItems = new Set();
     let isLoading = true;
     let unavailableItems = [];
     let showInvoicePopup = false;
+    let showOrderConfirmationPopup = false;
+    let orderToken = '';
+    let cancelTime=15;
 
-    // Check items availability when component mounts
     onMount(async () => {
         if ($cart.length > 0) {
             try {
@@ -19,14 +21,14 @@
                 await postItems(
                     { foodItems: itemIds },
                     {
-                    endPoint: 'orders/checkItems',
-                    onSuccess: (response) => {
-                         // Filter unavailable items from response
-                        unavailableItems = response.foodItems.filter(item => 
-                            !item.isAvailable || !item.isOrderingAllowed
-                        );
+                        endPoint: 'orders/checkItems',
+                        onSuccess: (response) => {
+                            unavailableItems = response.foodItems.filter(item => 
+                                !item.isAvailable || !item.isOrderingAllowed
+                            );
+                        }
                     }
-                });
+                );
             } catch (error) {
                 console.error('Failed to check items availability:', error);
                 alert('Failed to check items availability. Please try again later.');
@@ -38,18 +40,16 @@
         }
     });
 
-    // Calculate total price for selected items only
     $: total = $cart.reduce((sum, item) => 
         selectedItems.has(item._id) ? sum + (item.price * item.quantity) : sum, 0);
 
-    // Toggle item selection
     function toggleSelection(itemId) {
         if (selectedItems.has(itemId)) {
             selectedItems.delete(itemId);
         } else {
             selectedItems.add(itemId);
         }
-        selectedItems = selectedItems; // trigger reactivity
+        selectedItems = selectedItems;
     }
 
     async function placeOrder() {
@@ -61,32 +61,24 @@
         try {
             const selectedItemsData = $cart.filter(item => selectedItems.has(item._id));
             const orderData = {
-                // cusotmer: $user._id,
                 foodItems: selectedItemsData.map(item => item._id),
                 quantities: selectedItemsData.map(item => item.quantity),
                 totalPrice: total,
                 paymentMethod: 'cash',
             };
 
-            // Use createItem from apiHandler to create the order
             await createItem(orderData, {
                 endPoint: 'orders',
                 onSuccess: (response) => {
                     if (response.success) {
-                        // Show success message with token number
-                        alert(`Order placed successfully! 
-                        Your token number is: ${response.order.token}\nPlease 
-                        remember this token number for payment.`);
-                        
-                        //hide invoice popup
+                        orderToken = response.order.token;
+                        cancelTime = response.order.cancelTime;
                         showInvoicePopup = false;
+                        showOrderConfirmationPopup = true;
 
-                        // Remove ordered items from cart and clear selection
                         selectedItems.forEach(itemId => cart.removeItem(itemId));
                         selectedItems.clear();
-
                     } else {
-                        // Filter available items and show them to user
                         const availableItems = selectedItemsData.filter(item => 
                             !item.isAvailable || !item.isOrderingAllowed
                         );
@@ -114,6 +106,14 @@
         } else {
             cart.updateQuantity(item._id, newQuantity);
         }
+    }
+
+    function closeOrderConfirmationPopup() {
+        showOrderConfirmationPopup = false;
+    }
+
+    function goToOrderHistory() {
+        navigate('/client/orderHistory');
     }
 </script>
 
@@ -330,6 +330,32 @@
                             Confirm Order
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showOrderConfirmationPopup}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h2 class="text-2xl font-bold mb-4">Order Confirmation</h2>
+                <p class="text-lg mb-4">Your token number is:</p>
+                <p class="text-4xl font-bold text-blue-600 mb-4">{orderToken}</p>
+                <p class="text-gray-600 mb-6">Use this token for your cash payment. You can also find this token in your order history.</p>
+                <p class="text-gray-600 mb-6">If you wish to cancel your order, you can do so within {cancelTime} minutes by visiting your order history.</p>
+                <div class="flex justify-end space-x-4">
+                    <button 
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        on:click={closeOrderConfirmationPopup}
+                    >
+                        Close
+                    </button>
+                    <button 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        on:click={goToOrderHistory}
+                    >
+                        Go to Order History
+                    </button>
                 </div>
             </div>
         </div>

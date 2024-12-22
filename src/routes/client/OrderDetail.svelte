@@ -47,7 +47,7 @@
             await patchItem(
                 { cancelReason: cancelReason.trim() },
                 {
-                    contentType: 'multipart/form-data',
+                    // contentType: 'multipart/form-data',
                     endPoint: `orders/cancel/${orderId}`,                    
                     onSuccess: (response) => {
                         if(response.success){
@@ -98,14 +98,14 @@
             <p class="text-gray-500">Order not found</p>
         </div>
     {:else}
-        <div class="bg-white rounded-lg shadow p-4" transition:fade>
-            <div class="border-b pb-4 mb-4">
+        <div class="bg-white rounded-lg shadow p-4 flex flex-col max-h-[calc(100vh-10rem)]" transition:fade>
+            <!-- Fixed Top Section -->
+            <div class="border-b pb-4 mb-4 flex-shrink-0">
                 <div class="flex justify-between items-start">
                     <div>
                         <h1 class="text-xl font-bold">#{order.shortId}</h1>
-                        <p class="text-smtext-gray-600">{formatDate(order.createdAt)}</p>
+                        <p class="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
                         <h1 class="text-xl font-bold mt-3 text-blue-600">Token: {order.token}</h1>
-                        
                     </div>
                     <div class="text-right flex flex-col gap-2">
                         <p class="text-sm px-3 py-1 rounded-full {
@@ -129,36 +129,26 @@
                 </div>
             </div>
 
-            <!-- Order Items -->
-            <div class="space-y-4 max-h-80 overflow-y-auto">
-                {#each order.foodItems as item, index}
-                    <div class="flex items-center space-x-4">
-                        <!-- <div class="w-16 h-16 flex-shrink-0">
-                            {#if item.image}
-                                <img 
-                                    src={item.image} 
-                                    alt={item.name}
-                                    class="w-full h-full object-cover rounded"
-                                />
-                            {:else}
-                                <div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                                    <span class="text-gray-400 text-xs">No image</span>
-                                </div>
-                            {/if}
-                        </div> -->
-                        <div class="flex-grow">
-                            <h3 class="font-semibold">{item.name}</h3>
-                            <p class="text-sm text-gray-600">Rs. {item.price} × {order.quantities[index]}</p>
+            <!-- Scrollable Content -->
+            <div class="flex-grow overflow-y-auto">
+                <!-- Order Items -->
+                <div class="flex flex-col space-y-4">
+                    {#each order.foodItems as item, index}
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-grow">
+                                <h3 class="font-semibold">{item.name}</h3>
+                                <p class="text-sm text-gray-600">Rs. {item.price} × {order.quantities[index]}</p>
+                            </div>
+                            <div class="text-right pr-4">
+                                <p class="font-semibold">Rs. {(item.price * order.quantities[index]).toFixed(2)}</p>
+                            </div>
                         </div>
-                        <div class="text-right pr-4">
-                            <p class="font-semibold">Rs. {(item.price * order.quantities[index]).toFixed(2)}</p>
-                        </div>
-                    </div>
-                {/each}
+                    {/each}
+                </div>
             </div>
 
-            <!-- Order Summary -->
-            <div class="mt-6 pt-4 border-t">
+            <!-- Fixed Bottom Section -->
+            <div class="mt-6 pt-4 border-t flex-shrink-0">
                 <div class="flex justify-between items-center font-bold">
                     <p>Total Amount</p>
                     <p>Rs. {order.totalPrice.toFixed(2)}</p>

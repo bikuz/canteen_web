@@ -12,7 +12,7 @@
   import Menu from './routes/Menu.svelte';
   import Order from './routes/Order.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
-  
+  import OrderDashboard from './routes/OrderDashboard.svelte';
   import MenuClient from './routes/client/Menu.svelte';
   import Cart from './routes/client/Cart.svelte';
   import OrderHistory from './routes/client/OrderHistory.svelte';
@@ -144,7 +144,6 @@
         <Link to="/" class="block p-2 rounded hover:bg-gray-700">Home</Link>
         
         {#if $isAuthenticated}
-          <Link to="/protected" class="block p-2 rounded hover:bg-gray-700  text-white " >Protected</Link>
           <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link>
           <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
@@ -199,7 +198,6 @@
         <nav class="p-4 space-y-2">
            <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
            {#if $isAuthenticated}
-              <Link to="/protected" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Protected</Link>
               <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link>
               <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
               <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
@@ -222,18 +220,17 @@
       <main class="flex-grow p-3 overflow-hidden">
         <Route path="/" component={Login} />
         <Route path="/login" component={Login} />
-        <ProtectedRoute path="/protected" component={Protected} />
         <ProtectedRoute path="/catMgmt" component={Category} />
         <ProtectedRoute path="/fooditemMgmt" component={FoodItems} />
         <ProtectedRoute path='/menuMgmt' component={Menu}/>
-        <ProtectedRoute path='/orderMgmt' component={Order}/>
+        <ProtectedRoute path='/orderMgmt' component={OrderDashboard}/>
         <ProtectedRoute path="/dbAdmin" component={DashboardAdmin} />
         <ProtectedRoute path="/cart" component={Cart} />
         <ProtectedRoute path='/client/menu' component={MenuClient}/>
         <ProtectedRoute path="/client/orderHistory" component={OrderHistory} />
         <ProtectedRoute path="/client/orderDetail/:orderId" component={OrderDetail} />
         <ProtectedRoute path="/payMgmt" component={PaymentDashboard} />
-        <Route path="/make-payment" component={MakePayment} />
+        <ProtectedRoute path="/make-payment" component={MakePayment} />
         
         <!-- <Route path="/" component={() => import('./routes/Login.svelte')} />
           <Route path="/login" component={() => import('./routes/Login.svelte')} />

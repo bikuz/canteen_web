@@ -103,7 +103,7 @@
             <p class="text-gray-500">No orders found for the selected date range</p>
         </div>
     {:else}
-        <div class="space-y-4 overflow-y-auto max-h-[550px]">
+        <div class="space-y-4 overflow-y-auto max-h-[calc(100vh-10rem)] pr-4">
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             {#each orders as order}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->

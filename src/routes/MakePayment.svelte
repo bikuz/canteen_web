@@ -12,22 +12,18 @@
     let searchInputRef;
     let hasSearched = false;
     let focusedOrderIndex = -1;
+    let paymentMethod = 'Cash'; // Default payment method
 
     onMount(() => {
         const today = new Date();
         endDate = today.toISOString().split('T')[0];
         startDate = today.toISOString().split('T')[0];
         
+        fetchOrders();
         searchInputRef.focus();
     });
 
     async function fetchOrders() {
-        // if (!searchToken && !searchShortId) {
-        //     orders = [];
-        //     hasSearched = false;
-        //     return;
-        // }
-
         isLoading = true;
         hasSearched = true;
         try {
@@ -59,8 +55,9 @@
         if (!confirm(`Confirm payment for Order #${order.shortId}?`)) return;
 
         try {
+           
             await patchItem(
-                { paymentStatus: 'paid' },
+                {paymentMethod }, // Include paymentMethod
                 {
                     endPoint: `orders/${order._id}/payment`,
                     onSuccess: () => {
@@ -110,6 +107,10 @@
                     event.preventDefault();
                     document.getElementById('endDate').focus();
                     break;
+                case 'm': // New shortcut for payment method
+                    event.preventDefault();
+                    document.getElementById('paymentMethod').focus();
+                    break;
             }
         }
 
@@ -150,8 +151,7 @@
             const containerBottom = containerTop + tableContainer.clientHeight;
 
             if (rowBottom > containerBottom) {
-                // tableContainer.scrollTop += rowBottom - containerBottom;
-                tableContainer.scrollTop = rowBottom -tableContainer.clientHeight;
+                tableContainer.scrollTop = rowBottom - tableContainer.clientHeight;
             } else if (rowTop < containerTop) {
                 tableContainer.scrollTop =  rowTop;
             }
@@ -171,13 +171,27 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
-<div class="container mx-auto p-4 max-w-5xl">
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold">Make Payment</h1>
+<div class="container mx-auto p-4 pt-2 max-w-5xl">
+    <!-- Keyboard Shortcuts Help -->
+    <div class="bg-blue-100 p-2 rounded-lg mb-2 text-sm shadow">
+        <h1 class="text-lg font-bold mb-2">Make Payment</h1>
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="font-semibold">Keyboard Shortcuts:</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <div>↑/↓: Navigate orders</div>
+            <div>Enter: Make payment</div>
+            <div>Ctrl+K: Focus token search</div>
+            <div>Ctrl+O: Focus order ID search</div>
+            <div>Ctrl+M: Focus Payment Method</div>
+            <div>Ctrl+F: Focus from date</div>
+            <div>Ctrl+E: Focus to date</div>
+            <div>Esc: Clear search</div>
+        </div>
     </div>
 
     <!-- Search Controls -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mt-4 mb-2">
         <div class="flex flex-col">
             <label for="token" class="text-sm text-gray-600 mb-1">Token (Ctrl+K)</label>
             <input
@@ -197,6 +211,20 @@
                 class="border rounded px-3 py-2"
             />
         </div>
+        
+        <!-- Payment Method Dropdown -->
+        <div class="flex flex-col">
+            <label for="paymentMethod" class="text-sm text-gray-600 mb-1">Payment Method (Ctrl+M)</label>
+            <select
+                id="paymentMethod"
+                bind:value={paymentMethod}
+                class="border rounded px-3 py-2"
+            >
+                <option value="Cash">Cash</option>
+                <option value="eSewa">eSewa</option>
+                <option value="fonepay">fonepay</option>
+            </select>
+        </div>
         <div class="flex flex-col">
             <label for="startDate" class="text-sm text-gray-600 mb-1">From (Ctrl+F)</label>
             <input
@@ -213,27 +241,15 @@
                 type="date"
                 id="endDate"
                 bind:value={endDate}
+                on:input={() => fetchOrders()}
                 class="border rounded px-3 py-2"
             />
         </div>
     </div>
 
-    <!-- Keyboard Shortcuts Help -->
-    <div class="bg-blue-100 p-2 rounded-lg mb-2 text-sm">
-        <div class="flex justify-between items-start mb-2">
-            <h3 class="font-semibold">Keyboard Shortcuts:</h3>
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-            <div>↑/↓: Navigate orders</div>
-            <div>Enter: Make payment</div>
-            <div>Ctrl+K: Focus token search</div>
-            <div>Ctrl+O: Focus order ID search</div>
-            <div>Ctrl+F: Focus from date</div>
-            <div>Ctrl+E: Focus to date</div>
-            <div>Esc: Clear search</div>
-        </div>
-    </div>
 
+
+    
     {#if isLoading}
         <div class="text-center py-8">
             <p class="text-gray-500">Searching orders...</p>
@@ -245,7 +261,7 @@
             </div>
         {:else}
             <div class="bg-white rounded-lg shadow overflow-x-auto">
-                <div class="payTable max-h-96 overflow-y-auto">
+                <div class="payTable max-h-[calc(100vh-22rem)] overflow-y-auto">
                     <table class="min-w-full table-fixed">
                         <thead>
                             <tr class="bg-gray-50">

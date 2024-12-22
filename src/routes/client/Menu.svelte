@@ -13,6 +13,7 @@
     let foodItems = [];
     let categories = new Map(); // Store category details
     let selectedItem = null;
+    let selectedCategory = 'all';
 
     // Store to handle loading state
     const isLoading = writable(false);
@@ -63,13 +64,16 @@
 
     // Group food items by category
     $: groupedFoodItems = foodItems.reduce((groups, item) => {
-        const categoryId = item.category;
-        if (!groups[categoryId]) {
-            groups[categoryId] = [];
+        if (selectedCategory === 'all' || item.category === selectedCategory) {
+            const categoryId = item.category;
+            if (!groups[categoryId]) {
+                groups[categoryId] = [];
+            }
+            groups[categoryId].push(item);
         }
-        groups[categoryId].push(item);
         return groups;
     }, {});
+
 
     // Fetch initial data for Sunday
     onMount(() => {
@@ -99,9 +103,13 @@
             notification = null;
         }, 3000);
     }
+
+    function filterByCategory(category) {
+        selectedCategory = category;
+    }
 </script>
 
-<div class="container mx-auto p-6 flex flex-col space-y-6 bg-gray-50 h-full relative">
+<div class="container mx-auto p-4 pt-2 pb-2 flex flex-col space-y-6 bg-gray-50 h-full relative">
     <!-- Pills Section -->
     <div class="flex justify-between items-center space-x-2 bg-gray-100 p-4 rounded-lg">
         <div class="flex items-center w-full space-x-2 overflow-x-auto">
@@ -125,8 +133,35 @@
         </div>
     </div>
 
+    {#if categories.size > 0}
+        <!-- Category Filter Buttons -->
+        <div class="flex space-x-2 mb-4 justify-center">
+            <div 
+             
+                class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
+                transition-all duration-200 hover:bg-yellow-100 cursor-pointer
+                 {selectedCategory === 'all' ? 'ring-2 ring-yellow-400' : ''}"
+                on:click={() => filterByCategory('all')}
+            >
+                All
+            </div>
+            {#each Array.from(categories.values()) as category}
+                <div 
+                    class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
+                    transition-all duration-200 hover:bg-yellow-100 cursor-pointer
+                    {selectedCategory === category._id ? 'ring-2 ring-yellow-400' : ''}"
+                    on:click={() => filterByCategory(category._id)}
+                >
+                    {category.name}
+                </div>
+            {/each}
+        </div>
+    {:else}
+        <div class="text-center">No categories available for this day.</div>
+    {/if}
+
     <!-- Food Items Section -->
-    <div class="space-y-8 overflow-y-auto h-full">
+    <div class="space-y-2 overflow-y-auto h-full">
         {#if $isLoading}
             <div class="text-center">Loading...</div>
         {:else if foodItems.length === 0}
@@ -134,11 +169,11 @@
         {:else}
             {#each Object.entries(groupedFoodItems) as [categoryId, items]}
                 {#if categories.get(categoryId)}
-                    <div class="space-y-4">
-                        <h2 class="text-2xl font-bold text-gray-800 border-b pb-2">
+                    <div class="space-y-2">
+                        <h2 class=" text-lg font-bold text-gray-800 border-b pb-2">
                             {categories.get(categoryId).name}
                         </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                             {#each items as item}
                                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                                 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -146,7 +181,7 @@
                                     class="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-200"
                                     on:click={() => showItemDetail(item)}
                                 >
-                                    <div class="h-40 w-full">
+                                    <div class="h-24 w-full">
                                         {#if item.image}
                                             <img 
                                                 src={item.image} 
