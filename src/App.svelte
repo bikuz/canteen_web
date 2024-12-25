@@ -147,7 +147,11 @@
           <!-- Sidebar -->
           <aside class="w-64 bg-gray-800 text-white flex-shrink-0 h-full overflow-auto hidden lg:flex flex-col">
               <div class="p-4 text-2xl font-bold">
-                  App Logoss
+                <img 
+                src="/images/icimod_logo.png" 
+                alt="Regional Data Explorer" 
+                class="w-32 h-full object-cover"
+            />
               </div>
               <nav class="p-4 space-y-2">
                   <Link to="/" class="block p-2 rounded hover:bg-gray-700">Home</Link>
