@@ -143,19 +143,20 @@
 
     function scrollToFocusedOrder() {
         const tableContainer = document.querySelector('.payTable');
-        const focusedRow = tableContainer.querySelectorAll('tr')[focusedOrderIndex];
-        if (focusedRow) {
-            const rowTop = focusedRow.offsetTop;
-            const rowBottom = rowTop + focusedRow.offsetHeight*2;
-            const containerTop = tableContainer.scrollTop;
-            const containerBottom = containerTop + tableContainer.clientHeight;
+        const focusedRow = tableContainer.querySelectorAll('tr')[focusedOrderIndex+1];
+        focusedRow?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // if (focusedRow) {
+        //     const rowTop = focusedRow.offsetTop;
+        //     const rowBottom = rowTop + focusedRow.offsetHeight*2;
+        //     const containerTop = tableContainer.scrollTop;
+        //     const containerBottom = containerTop + tableContainer.clientHeight;
 
-            if (rowBottom > containerBottom) {
-                tableContainer.scrollTop = rowBottom - tableContainer.clientHeight;
-            } else if (rowTop < containerTop) {
-                tableContainer.scrollTop =  rowTop;
-            }
-        }
+        //     if (rowBottom > containerBottom) {
+        //         tableContainer.scrollTop = rowBottom - tableContainer.clientHeight;
+        //     } else if (rowTop < containerTop) {
+        //         tableContainer.scrollTop =  rowTop;
+        //     }
+        // }
     }
 
     function handleSearch() {
@@ -171,7 +172,7 @@
 
 <svelte:window on:keydown={handleKeydown}/>
 
-<div class="container mx-auto p-4 pt-2 max-w-5xl">
+<div class="container mx-auto p-4 pt-2 h-full">
     <!-- Keyboard Shortcuts Help -->
     <div class="bg-blue-100 p-2 rounded-lg mb-2 text-sm shadow">
         <h1 class="text-lg font-bold mb-2">Make Payment</h1>

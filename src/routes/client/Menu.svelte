@@ -11,35 +11,54 @@
     let todayIndex = new Date().getDay();
     let selectedDay = days[todayIndex];
     let foodItems = [];
-    let categories = new Map(); // Store category details
     let selectedItem = null;
     let selectedCategory = 'all';
 
     // Store to handle loading state
     const isLoading = writable(false);
 
-    const fetchCategory = async (categoryId) => {
-        await api.getItems({
-            endPoint: `categories/${categoryId}`,
-            onSuccess: (category) => {
-                categories.set(categoryId, category);
-                categories = categories; // Trigger reactivity
-            },
-            onError: (error) => {
-                console.error('Failed to fetch category:', error);
-            }
-        });
-    };
+    // Use writable for categories
+    const categories = writable([]);
+
+    // const fetchCategory = async (categoryId) => {
+    //     await api.getItems({
+    //         endPoint: `categories/${categoryId}`,
+    //         onSuccess: (category) => {
+    //             categories.update(currentCategories => {
+    //                 // Check if the category already exists
+    //                 const exists = currentCategories.some(cat => cat._id === category._id);
+    //                 if (!exists) {
+    //                     return [...currentCategories, category];
+    //                 }
+    //                 return currentCategories;
+    //             });
+    //         },
+    //         onError: (error) => {
+    //             console.error('Failed to fetch category:', error);
+    //         }
+    //     });
+    // };
 
     const fetchFoodItems = async (day) => {
         isLoading.set(true);
         await api.getItems({
             endPoint: `menus/day/${day}/fooditems`,
-            onSuccess: async (items) => {
+            onSuccess: (items) => {
                 foodItems = items;
-                // Fetch categories for all unique category IDs
-                const uniqueCategoryIds = [...new Set(items.map(item => item.category))];
-                await Promise.all(uniqueCategoryIds.map(fetchCategory));
+                // Extract unique categories from the food items
+                const uniqueCategories = [];
+                const categoryIds = new Set();
+
+                items.forEach(item => {
+                    const category = item.category;
+                    if (!categoryIds.has(category._id)) {
+                        categoryIds.add(category._id);
+                        uniqueCategories.push(category);
+                    }
+                });
+
+                console.log('Unique categories:', uniqueCategories); // Debugging
+                categories.set(uniqueCategories);
             },
             onError: (error) => {
                 console.error('Failed to fetch food items:', error);
@@ -51,21 +70,22 @@
     };
 
     const selectDay = (day) => {
-        if(selectedDay == day){
+        if (selectedDay === day) {
             selectedDay = '';
             foodItems = [];
-            categories = new Map();
-        }
-        else{
+           
+        } else {
             selectedDay = day;
+            // categories.set([]); // Clear categories before fetching new ones
             fetchFoodItems(day);
         }
+        categories.set([]); // Clear categories
     };
 
     // Group food items by category
     $: groupedFoodItems = foodItems.reduce((groups, item) => {
-        if (selectedCategory === 'all' || item.category === selectedCategory) {
-            const categoryId = item.category;
+        if (selectedCategory === 'all' || item.category._id === selectedCategory) {
+            const categoryId = item.category._id;
             if (!groups[categoryId]) {
                 groups[categoryId] = [];
             }
@@ -74,6 +94,11 @@
         return groups;
     }, {});
 
+    // Function to get category name by ID
+    function getCategoryNameById(categoryId) {
+        const category = $categories.find(cat => cat._id === categoryId);
+        return category ? category.name : 'Unknown Category';
+    }
 
     // Fetch initial data for Sunday
     onMount(() => {
@@ -133,11 +158,10 @@
         </div>
     </div>
 
-    {#if categories.size > 0}
-        <!-- Category Filter Buttons -->
+    <!-- Category Filter Buttons -->
+    {#if $categories.length > 0}
         <div class="flex space-x-2 mb-4 justify-center">
             <div 
-             
                 class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
                 transition-all duration-200 hover:bg-yellow-100 cursor-pointer
                  {selectedCategory === 'all' ? 'ring-2 ring-yellow-400' : ''}"
@@ -145,7 +169,7 @@
             >
                 All
             </div>
-            {#each Array.from(categories.values()) as category}
+            {#each $categories as category}
                 <div 
                     class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
                     transition-all duration-200 hover:bg-yellow-100 cursor-pointer
@@ -168,43 +192,45 @@
             <div class="text-center">No food items available for this day.</div>
         {:else}
             {#each Object.entries(groupedFoodItems) as [categoryId, items]}
-                {#if categories.get(categoryId)}
-                    <div class="space-y-2">
-                        <h2 class=" text-lg font-bold text-gray-800 border-b pb-2">
-                            {categories.get(categoryId).name}
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                            {#each items as item}
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                <div 
-                                    class="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                                    on:click={() => showItemDetail(item)}
-                                >
-                                    <div class="h-24 w-full">
-                                        {#if item.image}
-                                            <img 
-                                                src={item.image} 
-                                                alt={item.name}
-                                                class="h-full w-full object-cover"
-                                                onerror="this.src='placeholder-image-url.jpg'"
-                                            />
-                                        {:else}
-                                            <div class="h-full w-full bg-gray-200 flex items-center justify-center">
-                                                <span class="text-gray-400 text-sm">No image</span>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                    <div class="p-3">
-                                        <h3 class="text-base font-semibold">{item.name}</h3>
-                                        <p class="text-gray-600 text-xs mt-1">{item.description}</p>
-                                        <p class="text-blue-600 font-medium mt-1">Rs. {item.price}</p>
-                                    </div>
+                <div class="space-y-2">
+                    <h2 class="text-lg font-bold text-gray-800 border-b pb-2">
+                        {#if $categories.length > 0}
+                            {getCategoryNameById(categoryId)}
+                        {:else}
+                            Loading...
+                        {/if}
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {#each items as item}
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <div 
+                                class="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                                on:click={() => showItemDetail(item)}
+                            >
+                                <div class="h-24 w-full">
+                                    {#if item.image}
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.name}
+                                            class="h-full w-full object-cover"
+                                            onerror="this.src='placeholder-image-url.jpg'"
+                                        />
+                                    {:else}
+                                        <div class="h-full w-full bg-gray-200 flex items-center justify-center">
+                                            <span class="text-gray-400 text-sm">No image</span>
+                                        </div>
+                                    {/if}
                                 </div>
-                            {/each}
-                        </div>
+                                <div class="p-3">
+                                    <h3 class="text-base font-semibold">{item.name}</h3>
+                                    <p class="text-gray-600 text-xs mt-1">{item.description}</p>
+                                    <p class="text-blue-600 font-medium mt-1">Rs. {item.price}</p>
+                                </div>
+                            </div>
+                        {/each}
                     </div>
-                {/if}
+                </div>
             {/each}
         {/if}
     </div>
