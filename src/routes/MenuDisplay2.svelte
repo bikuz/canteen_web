@@ -54,6 +54,7 @@
                 onSuccess: (data) => {
                     foodItems = data;
                     categories = [...new Set(data.map(item => item.category))];
+                    
                     isLoading = false;
                     startRotation();
                 }

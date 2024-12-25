@@ -5,6 +5,7 @@
 
     let categories = [];
     let foodItems = [];
+    let filteredFoodItems = [];
     let selectedCategoryIndex = 0;
     let selectedItemIndex = 0;
     let selectedOrderItemIndex = -1;
@@ -24,14 +25,24 @@
         { key: 'F4', action: 'Confirm order' },
     ];
 
+    // Watch for category selection changes
+    $: {
+        if (categories.length > 0 && foodItems.length > 0) {
+            const selectedCategory = categories[selectedCategoryIndex];
+            filteredFoodItems = foodItems.filter(item => 
+                item.category._id === selectedCategory._id
+            );
+            // Reset item selection when category changes
+            selectedItemIndex = 0;
+        }
+    }
+
     onMount(async () => {
         try {
             await api.getItems({
-                endPoint: 'menus/today/fooditems',
+                endPoint: 'menus/day/Sunday/fooditems',
                 onSuccess: (data) => {
                     foodItems = data;
-                    // categories = [...new Set(data.map(item => item.category))];
-
                     const categoryIds = new Set();
 
                     data.forEach(item => {
@@ -42,7 +53,13 @@
                         }
                     });
 
-                    categories=[...categories];
+                    categories = [...categories];
+                    // Initialize filtered items
+                    if (categories.length > 0) {
+                        filteredFoodItems = foodItems.filter(item => 
+                            item.category._id === categories[0]._id
+                        );
+                    }
                 }
             });
         } catch (error) {
@@ -54,11 +71,11 @@
         switch (event.key) {
             case 'ArrowUp':
                 selectedItemIndex = Math.max(selectedItemIndex - 1, 0);
-                scrollToItem('foodItems', selectedItemIndex);
+                scrollToItem('food-items', selectedItemIndex);
                 break;
             case 'ArrowDown':
-                selectedItemIndex = Math.min(selectedItemIndex + 1, foodItems.length - 1);
-                scrollToItem('foodItems', selectedItemIndex);
+                selectedItemIndex = Math.min(selectedItemIndex + 1, filteredFoodItems.length - 1);
+                scrollToItem('food-items', selectedItemIndex);
                 break;
             case 'ArrowLeft':
                 selectedCategoryIndex = Math.max(selectedCategoryIndex - 1, 0);
@@ -69,8 +86,8 @@
                 scrollToItem('categories', selectedCategoryIndex);
                 break;
             case 'Enter':
-                if (selectedItemIndex >= 0 && selectedItemIndex < foodItems.length) {
-                    addItemToOrder(foodItems[selectedItemIndex]);
+                if (selectedItemIndex >= 0 && selectedItemIndex < filteredFoodItems.length) {
+                    addItemToOrder(filteredFoodItems[selectedItemIndex]);
                 }
                 break;
             case 'd': // Deduct item from order summary
@@ -159,9 +176,9 @@
 
 <div class="cashier-panel flex h-full">
     <!-- Categories Section -->
-    <div class="categories w-4/12 bg-gray-100 p-4 ">
+    <div class=" w-4/12 bg-gray-100 p-4 ">
         <h2 class="text-lg font-bold mb-4">Categories</h2>
-        <div class="max-h-[calc(100vh-20rem)] overflow-y-auto">
+        <div class="categories max-h-[calc(100vh-20rem)] overflow-y-auto">
             {#each categories as category, index}
                 <div class="{selectedCategoryIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200">
                     {category.name}
@@ -171,10 +188,10 @@
     </div>
 
     <!-- Food Items Section -->
-    <div class="food-items w-5/12 bg-white p-4 overflow-y-auto">
+    <div class=" w-5/12 bg-white p-4 overflow-y-auto">
         <h2 class="text-lg font-bold mb-4">Food Items</h2>
-        <div class="max-h-[calc(100vh-20rem)] overflow-y-auto">
-            {#each foodItems as item, index}
+        <div class="food-items max-h-[calc(100vh-20rem)] overflow-y-auto">
+            {#each filteredFoodItems as item, index}
                 <div class="{selectedItemIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200">
                     <h3 class="font-semibold">{item.name}</h3>
                     <p class="text-sm text-gray-600">Rs. {item.price}</p>
