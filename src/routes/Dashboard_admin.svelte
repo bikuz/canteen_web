@@ -1,11 +1,12 @@
 <script>
-    // // import Highcharts from 'highcharts';
-    // // import HighchartsSvelte from 'highcharts-svelte';
     // import Highcharts from 'highcharts';
-    // import ExportingModule from 'highcharts/modules/exporting';
-    // // import { Chart } from '@highcharts/svelte'; // Chart is also exported by default
+    import { onMount } from 'svelte';
 
-    // // Applying a certain Highcharts module
+    import Highcharts from 'highcharts';
+    import ExportingModule from 'highcharts/modules/exporting';
+    import { Chart } from '@highcharts/svelte'; // Chart is also exported by default
+
+    // Applying a certain Highcharts module
     // ExportingModule(Highcharts);
 
     // Dummy data for category-wise sales
@@ -45,6 +46,13 @@
         { name: "Pizza", status: "Pending", time: "12:00 PM" },
         { name: "Salad", status: "Preparing", time: "12:30 PM" }
     ];
+
+    let container;
+    let chart;
+
+    onMount(() => {
+        // chart = Highcharts.chart(container, options);
+    });
 </script>
 
 <style>
@@ -137,7 +145,9 @@
             <h2>Monthly Sales Chart</h2>
             <!-- <p>{pendingOrders}</p> -->
            
-            <!-- <Chart options={options} highcharts={Highcharts}/> -->
+            <Chart options={options} highcharts={Highcharts}/>
+
+            <!-- <div bind:this={container} class="w-full h-[400px]"></div> -->
         </div>
     </div>
 
