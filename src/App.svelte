@@ -9,7 +9,7 @@
   // import Categories from './routes/Categories.svelte';
   import Category from './routes/Category.svelte';
   import FoodItems from './routes/FoodItems.svelte';
-  import Menu from './routes/Menu.svelte';
+  import MenuMgmt from './routes/MenuMgmt.svelte';
   import Order from './routes/Order.svelte';
   import DashboardAdmin from './routes/Dashboard_admin.svelte';
   import OrderDashboard from './routes/OrderDashboard.svelte';
@@ -232,7 +232,7 @@
                   <Route path="/login" component={Login} />
                   <ProtectedRoute path="/catMgmt" component={Category} />
                   <ProtectedRoute path="/fooditemMgmt" component={FoodItems} />
-                  <ProtectedRoute path='/menuMgmt' component={Menu}/>
+                  <ProtectedRoute path='/menuMgmt' component={MenuMgmt}/>
                   <ProtectedRoute path='/orderMgmt' component={OrderDashboard}/>
                   <ProtectedRoute path="/dbAdmin" component={DashboardAdmin} />
                   <ProtectedRoute path="/cart" component={Cart} />

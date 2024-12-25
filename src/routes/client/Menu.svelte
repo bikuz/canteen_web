@@ -161,6 +161,8 @@
     <!-- Category Filter Buttons -->
     {#if $categories.length > 0}
         <div class="flex space-x-2 mb-4 justify-center">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div 
                 class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
                 transition-all duration-200 hover:bg-yellow-100 cursor-pointer
@@ -170,6 +172,8 @@
                 All
             </div>
             {#each $categories as category}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <div 
                     class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
                     transition-all duration-200 hover:bg-yellow-100 cursor-pointer

@@ -8,7 +8,9 @@
 
    
     export const foodItems = writable([]);
-    let lstCategory = [];
+    // let lstCategory = [];
+    let lstCategory = writable([]);
+    let selectedCategory = 'all';
     let isGridView = writable(true); // Default to grid view
     let currentPage = 1; // Current active page
     let total=0;
@@ -103,43 +105,51 @@
         await api.getItems({
             endPoint: 'categories',
             onSuccess: (data) => {
-               lstCategory=data;
+               lstCategory.set(data);
             },
             onError: (error) => console.error('Error fetching categories:', error),
         });
     }
 
     async function fetchFoodItems(page, limit) {
-        //  page/:page/limit/:limit
         await api.getItems({
-            endPoint: `fooditems/page/${page}/limit/${limit}`,
+            endPoint: `fooditems/page/${page}/limit/${limit}${selectedCategory !== 'all' ? `/category/${selectedCategory}` : ''}`,
             onSuccess: (data) => {
                 foodItems.set(data.fooditems.map(fd => ({
-                ...fd,
-                _starttime: secondsToTime12(fd.orderingStartTime),
-                _endtime: secondsToTime12(fd.orderingEndTime),
-            })));
-            total=data.total;
-            totalPages = Math.ceil(total / limit); 
+                    ...fd,
+                    _starttime: secondsToTime12(fd.orderingStartTime),
+                    _endtime: secondsToTime12(fd.orderingEndTime),
+                })));
+                total = data.total;
+                totalPages = Math.ceil(total / limit);
             },
-            onError: (error) => console.error('Error fetching categories:', error),
+            onError: (error) => console.error('Error fetching food items:', error),
         });
     }
 
-    // async function fetchFoodItems() {
-    //     await api.getItems({
-    //         endPoint: 'fooditems',
-    //         onSuccess: (data) => {
-    //             const pfooditems = data.map(category => ({
-    //                 ...category,
-    //                 _starttime: secondsToTime12(category.orderingStartTime),
-    //                 _endtime: secondsToTime12(category.orderingEndTime),
-    //             }));
-    //             foodItems.set(pfooditems);
-    //         },
-    //         onError: (error) => console.error('Error fetching food items:', error),
-    //     });
-    // }
+     // Group food items by category
+     $: groupedFoodItems = $foodItems.reduce((groups, item) => {
+        if (selectedCategory === 'all' || item.category._id === selectedCategory) {
+            const categoryId = item.category._id;
+            if (!groups[categoryId]) {
+                groups[categoryId] = [];
+            }
+            groups[categoryId].push(item);
+        }
+        return groups;
+    }, {});
+
+    // Function to get category name by ID
+    function getCategoryNameById(categoryId) {
+        const category = $lstCategory.find(cat => cat._id === categoryId);
+        return category ? category.name : 'Unknown Category';
+    }
+
+    function filterByCategory(category) {
+        selectedCategory = category;
+        currentPage = 1; // Reset to first page when changing category
+        fetchFoodItems(currentPage, limit);
+    }
 
     // Create a new fooditem
     async function createFoodItem() {
@@ -523,7 +533,37 @@
         
     </div>
 
-    <!-- Categories Section -->
+    <!-- Category Filter Buttons -->
+    {#if $lstCategory.length > 0}
+        <div class="flex space-x-2 mb-4 justify-center">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div 
+                class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
+                transition-all duration-200 hover:bg-yellow-100 cursor-pointer
+                 {selectedCategory === 'all' ? 'ring-2 ring-yellow-400' : ''}"
+                on:click={() => filterByCategory('all')}
+            >
+                All
+            </div>
+            {#each $lstCategory as category}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div 
+                    class="px-3 py-1 bg-yellow-50 rounded-full text-yellow-700 shadow
+                    transition-all duration-200 hover:bg-yellow-100 cursor-pointer
+                    {selectedCategory === category._id ? 'ring-2 ring-yellow-400' : ''}"
+                    on:click={() => filterByCategory(category._id)}
+                >
+                    {category.name}
+                </div>
+            {/each}
+        </div>
+    {:else}
+        <div class="text-center">No categories available for this day.</div>
+    {/if}
+
+    <!-- fooditems Section -->
     <div class="overflow-auto pr-4 {isGridView ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6' : 'space-y-4'}">
         
         {#if $foodItems.length==0}
@@ -565,7 +605,7 @@
                 </p>
                 <p class="text-sm">
                     <span class=" text-gray-600">Category: </span>
-                    <strong>{lstCategory.find(cat => cat._id === fi.category)?.name || 'Unknown'}</strong>
+                    <strong>{$lstCategory.find(cat => cat._id === fi.category)?.name || 'Unknown'}</strong>
                 </p>
                 <p class="text-sm">
                     <span class="text-gray-600">Availability Status:</span>
