@@ -3,7 +3,8 @@
  <script>
    import { navigate } from 'svelte-routing';
    import { login, isAuthenticated } from './routes';   
-   import Home from './Home.svelte';
+  //  import Home from './Home.svelte';
+   import MainDashboard from './MainDashboard.svelte';
    import { onMount } from 'svelte';
    import {config } from '../../app.config';
 
@@ -81,7 +82,7 @@
 
 <div class="bg-gray-100  flex flex-col items-center justify-center h-full">
   {#if !$isAuthenticated}
-    <Home/>
+   
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
       <div class="space-y-4">
@@ -131,6 +132,6 @@
   {/if}
 
   {#if $isAuthenticated}
-    <Home/>
+    <MainDashboard/>
   {/if}
 </div>

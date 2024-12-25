@@ -153,7 +153,7 @@
                   <Link to="/" class="block p-2 rounded hover:bg-gray-700">Home</Link>
                   
                   {#if $isAuthenticated}
-                      <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link>
+                      <!-- <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link> -->
                       <!-- <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link> -->
                       <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
                       <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
@@ -209,7 +209,7 @@
                   <nav class="p-4 space-y-2">
                       <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
                       {#if $isAuthenticated}
-                          <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link> 
+                          <!-- <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link>  -->
                           <!-- <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link> -->
                           <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
                           <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
