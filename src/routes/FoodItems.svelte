@@ -127,23 +127,6 @@
         });
     }
 
-     // Group food items by category
-     $: groupedFoodItems = $foodItems.reduce((groups, item) => {
-        if (selectedCategory === 'all' || item.category._id === selectedCategory) {
-            const categoryId = item.category._id;
-            if (!groups[categoryId]) {
-                groups[categoryId] = [];
-            }
-            groups[categoryId].push(item);
-        }
-        return groups;
-    }, {});
-
-    // Function to get category name by ID
-    function getCategoryNameById(categoryId) {
-        const category = $lstCategory.find(cat => cat._id === categoryId);
-        return category ? category.name : 'Unknown Category';
-    }
 
     function filterByCategory(category) {
         selectedCategory = category;
@@ -320,7 +303,7 @@
                   class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="" disabled>Select Category</option>
-                  {#each lstCategory as categoryOption}
+                  {#each $lstCategory as categoryOption}
                     <option value={categoryOption._id}>{categoryOption.name}</option>
                   {/each}
                 </select>
