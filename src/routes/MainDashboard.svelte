@@ -93,7 +93,7 @@
     let salesChartOptions = {
         chart: {
             type: 'column',
-            height: '400px'
+            height: '250px'
         },
         title: {
             text: 'Sales Overview'
@@ -350,11 +350,11 @@
                 </div>
 
                 <!-- Completed Orders -->
-                <div class="bg-green-50 rounded-lg shadow p-4">
+                <!-- <div class="bg-green-50 rounded-lg shadow p-4">
                     <h3 class="text-green-700 text-sm">Completed Orders</h3>
                     <p class="text-2xl font-bold text-green-700">{statistics.completedOrders}</p>
                     <p class="text-sm text-green-600 mt-1">Success Rate: {((statistics.completedOrders / statistics.totalOrders) * 100).toFixed(1)}%</p>
-                </div>
+                </div> -->
 
                 <!-- Payment Success -->
                 <div class="bg-blue-50 rounded-lg shadow p-4">
@@ -369,53 +369,73 @@
                     <p class="text-2xl font-bold text-yellow-700">{statistics.pendingOrders}</p>
                     <p class="text-sm text-yellow-600 mt-1">Amount: {formatCurrency(statistics.pendingAmount)}</p>
                 </div>
-            </div>
 
-            <!-- Summary Cards for the selected view -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 mb-4">
-                <div class="bg-purple-50 rounded-lg shadow p-4">
-                    <h3 class="text-purple-700 text-sm">Average {salesViewMode === 'daily' ? 'Daily' : 'Monthly'} Sales</h3>
-                    <p class="text-2xl font-bold text-purple-700">
-                        {formatCurrency(calculateAverage(statistics.totalAmount, startDate, endDate, salesViewMode))}
-                    </p>
-                </div>
-                <div class="bg-indigo-50 rounded-lg shadow p-4">
-                    <h3 class="text-indigo-700 text-sm">Average Orders per {salesViewMode === 'daily' ? 'Day' : 'Month'}</h3>
-                    <p class="text-2xl font-bold text-indigo-700">
-                        {(statistics.totalOrders / (salesViewMode === 'daily'
-                            ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24))
-                            : Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24 * 30))
-                        )).toFixed(1)}
-                    </p>
-                </div>
-                <div class="bg-pink-50 rounded-lg shadow p-4">
-                    <h3 class="text-pink-700 text-sm">Average Order Value</h3>
-                    <p class="text-2xl font-bold text-pink-700">
-                        {formatCurrency(statistics.totalAmount / statistics.totalOrders)}
+                <!-- Cancelled Orders -->
+                <div class="bg-red-50 rounded-lg shadow p-4">
+                    <h3 class="text-red-700 text-sm">Cancelled Orders</h3>
+                    <p class="text-2xl font-bold text-red-700">{statistics.cancelledOrders}</p>
+                    <p class="text-sm text-red-600 mt-1">
+                        Rate: {((statistics.cancelledOrders / statistics.totalOrders) * 100).toFixed(1)}%
+                        • Loss: {formatCurrency(statistics.cancelledAmount)}
                     </p>
                 </div>
             </div>
 
-            <!-- Sales Overview -->
-            <div class="bg-white rounded-lg shadow p-4 mb-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">Sales Overview</h2>
-                    <div class="flex items-center space-x-2">
-                        <button 
-                            class="px-4 py-2 rounded-lg transition-colors duration-200 {salesViewMode === 'daily' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}"
-                            on:click={toggleSalesView}
-                        >
-                            Daily
-                        </button>
-                        <button 
-                            class="px-4 py-2 rounded-lg transition-colors duration-200 {salesViewMode === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}"
-                            on:click={toggleSalesView}
-                        >
-                            Monthly
-                        </button>
+            <!-- Grid Container for Stats and Chart -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <!-- Left Column: Statistics -->
+                <div class="space-y-4">
+                    <!-- Average Daily Sales -->
+                    <div class="bg-purple-50 rounded-lg shadow p-4 h-[calc(33.33%-0.67rem)]">
+                        <h3 class="text-purple-700 text-sm">Average {salesViewMode === 'daily' ? 'Daily' : 'Monthly'} Sales</h3>
+                        <p class="text-2xl font-bold text-purple-700">
+                            {formatCurrency(calculateAverage(statistics.totalAmount, startDate, endDate, salesViewMode))}
+                        </p>
+                    </div>
+
+                    <!-- Average Orders per Day -->
+                    <div class="bg-indigo-50 rounded-lg shadow p-4 h-[calc(33.33%-0.67rem)]">
+                        <h3 class="text-indigo-700 text-sm">Average Orders per {salesViewMode === 'daily' ? 'Day' : 'Month'}</h3>
+                        <p class="text-2xl font-bold text-indigo-700">
+                            {(statistics.totalOrders / (salesViewMode === 'daily'
+                                ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24))
+                                : Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24 * 30))
+                            )).toFixed(1)}
+                        </p>
+                    </div>
+
+                    <!-- Average Order Value -->
+                    <div class="bg-pink-50 rounded-lg shadow p-4 h-[calc(33.33%-0.67rem)]">
+                        <h3 class="text-pink-700 text-sm">Average Order Value</h3>
+                        <p class="text-2xl font-bold text-pink-700">
+                            {formatCurrency(statistics.totalAmount / statistics.totalOrders)}
+                        </p>
                     </div>
                 </div>
-                <Chart options={salesChartOptions} />
+
+                <!-- Right Column: Sales Chart -->
+                <div class="col-span-3 bg-white rounded-lg shadow p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Sales Overview</h2>
+                        <div class="flex items-center space-x-2">
+                            <button 
+                                class="px-4 py-2 rounded-lg transition-colors duration-200 {salesViewMode === 'daily' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}"
+                                on:click={toggleSalesView}
+                            >
+                                Daily
+                            </button>
+                            <button 
+                                class="px-4 py-2 rounded-lg transition-colors duration-200 {salesViewMode === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}"
+                                on:click={toggleSalesView}
+                            >
+                                Monthly
+                            </button>
+                        </div>
+                    </div>
+                    <div class="h-[calc(100%-3.5rem)]"> <!-- Adjust height to account for header -->
+                        <Chart options={salesChartOptions} />
+                    </div>
+                </div>
             </div>
 
             <!-- Charts -->

@@ -10,6 +10,7 @@
     let selectedItemIndex = 0;
     let selectedOrderItemIndex = -1;
     let order = writable([]);
+    let showInvoicePopup = false;
 
     // Add a summary of keyboard shortcuts
     const keyboardShortcuts = [
@@ -40,7 +41,7 @@
     onMount(async () => {
         try {
             await api.getItems({
-                endPoint: 'menus/day/Sunday/fooditems',
+                endPoint: 'menus/today/fooditems',
                 onSuccess: (data) => {
                     foodItems = data;
                     const categoryIds = new Set();
@@ -68,45 +69,56 @@
     });
 
     function handleKeydown(event) {
-        switch (event.key) {
-            case 'ArrowUp':
-                selectedItemIndex = Math.max(selectedItemIndex - 1, 0);
-                scrollToItem('food-items', selectedItemIndex);
-                break;
-            case 'ArrowDown':
-                selectedItemIndex = Math.min(selectedItemIndex + 1, filteredFoodItems.length - 1);
-                scrollToItem('food-items', selectedItemIndex);
-                break;
-            case 'ArrowLeft':
-                selectedCategoryIndex = Math.max(selectedCategoryIndex - 1, 0);
-                scrollToItem('categories', selectedCategoryIndex);
-                break;
-            case 'ArrowRight':
-                selectedCategoryIndex = Math.min(selectedCategoryIndex + 1, categories.length - 1);
-                scrollToItem('categories', selectedCategoryIndex);
-                break;
-            case 'Enter':
-                if (selectedItemIndex >= 0 && selectedItemIndex < filteredFoodItems.length) {
-                    addItemToOrder(filteredFoodItems[selectedItemIndex]);
-                }
-                break;
-            case 'd': // Deduct item from order summary
-                deductItemFromOrder($order[selectedOrderItemIndex]);
-                break;
-            case 'r': // Remove item from order summary
-                removeItemFromOrder($order[selectedOrderItemIndex]);
-                break;
-            case 'F4': // Change from 'f' to 'F4'
-                finalizeOrder();
-                break;
-            case 'w': // Move up in order summary
-                selectedOrderItemIndex = Math.max(selectedOrderItemIndex - 1, 0);
-                scrollToItem('order-summary', selectedOrderItemIndex);
-                break;
-            case 's': // Move down in order summary
-                selectedOrderItemIndex = Math.min(selectedOrderItemIndex + 1, $order.length - 1);
-                scrollToItem('order-summary', selectedOrderItemIndex);
-                break;
+        // Only handle F4 if invoice popup is shown
+        if (event.key === 'F4' && showInvoicePopup) {
+            event.preventDefault(); // Prevent default browser behavior
+            confirmOrder();
+            return;
+        }
+
+        // Only handle other shortcuts if invoice popup is not shown
+        if (!showInvoicePopup) {
+            switch (event.key) {
+                case 'ArrowUp':
+                    selectedItemIndex = Math.max(selectedItemIndex - 1, 0);
+                    scrollToItem('food-items', selectedItemIndex);
+                    break;
+                case 'ArrowDown':
+                    selectedItemIndex = Math.min(selectedItemIndex + 1, filteredFoodItems.length - 1);
+                    scrollToItem('food-items', selectedItemIndex);
+                    break;
+                case 'ArrowLeft':
+                    selectedCategoryIndex = Math.max(selectedCategoryIndex - 1, 0);
+                    scrollToItem('categories', selectedCategoryIndex);
+                    break;
+                case 'ArrowRight':
+                    selectedCategoryIndex = Math.min(selectedCategoryIndex + 1, categories.length - 1);
+                    scrollToItem('categories', selectedCategoryIndex);
+                    break;
+                case 'Enter':
+                    if (selectedItemIndex >= 0 && selectedItemIndex < filteredFoodItems.length) {
+                        addItemToOrder(filteredFoodItems[selectedItemIndex]);
+                    }
+                    break;
+                case 'd':
+                    deductItemFromOrder($order[selectedOrderItemIndex]);
+                    break;
+                case 'r':
+                    removeItemFromOrder($order[selectedOrderItemIndex]);
+                    break;
+                case 'F4':
+                    event.preventDefault(); // Prevent default browser behavior
+                    finalizeOrder();
+                    break;
+                case 'w':
+                    selectedOrderItemIndex = Math.max(selectedOrderItemIndex - 1, 0);
+                    scrollToItem('order-summary', selectedOrderItemIndex);
+                    break;
+                case 's':
+                    selectedOrderItemIndex = Math.min(selectedOrderItemIndex + 1, $order.length - 1);
+                    scrollToItem('order-summary', selectedOrderItemIndex);
+                    break;
+            }
         }
     }
 
@@ -145,9 +157,40 @@
         order.update(currentOrder => currentOrder.filter(i => i._id !== item._id));
     }
 
-    function finalizeOrder() {
-        console.log('Order finalized:', $order);
-        order.set([]);
+    async function finalizeOrder() {
+        if ($order.length === 0) {
+            alert('Please add items to the order first');
+            return;
+        }
+
+        // First show the invoice popup
+        showInvoicePopup = true;
+    }
+
+    // Add new function to handle actual order creation
+    async function confirmOrder() {
+        try {
+            const orderData = {
+                foodItems: $order.map(item => item._id),
+                quantities: $order.map(item => item.quantity),
+                totalPrice: totalAmount,
+                paymentMethod: 'cash',
+            };
+
+            await api.createItem(orderData, {
+                endPoint: 'orders/createOrderPayment',
+                onSuccess: (response) => {
+                    showInvoicePopup = false;
+                    order.set([]); // Clear the order
+                    alert('Order created successfully!');
+                },
+                onError: (error) => {
+                    alert(`Failed to place order: ${error.message}`);
+                }
+            });
+        } catch (error) {
+            alert('Failed to place order. Please try again.');
+        }
     }
 
     // Calculate total items and total amount
@@ -226,6 +269,56 @@
         </button>
     </div>
 </div>
+
+<!-- Invoice Popup -->
+{#if showInvoicePopup}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
+            <!-- Fixed Header -->
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold">Order Invoice ({totalItems} items)</h2>
+            </div>
+            
+            <!-- Scrollable Content -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="space-y-4">
+                    {#each $order as item}
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold">{item.name}</p>
+                                <p class="text-sm text-gray-600">Rs. {item.price} × {item.quantity}</p>
+                            </div>
+                            <p class="font-semibold">Rs. {(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+
+            <!-- Fixed Footer -->
+            <div class="p-6 border-t">
+                <div class="flex justify-between items-center font-bold mb-4">
+                    <p>Total Amount</p>
+                    <p>Rs. {totalAmount.toFixed(2)}</p>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button 
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        on:click={() => showInvoicePopup = false}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        on:click={confirmOrder}
+                    >
+                        Confirm Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
 
 <style>
     .selected {

@@ -63,10 +63,48 @@
     }
   }
 
+  async function tryBothLogins() {
+     try {
+       // Try LDAP first
+       const ldapResponse = await fetch(`${config.baseURL}/auth/login/ldap`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ username, password }),
+       });
+
+       const ldapData = await ldapResponse.json();
+       
+       if (ldapResponse.ok) {
+         login(ldapData.access_token, ldapData.refresh_token, rememberMe);
+         navigate(returnUrl);
+         return;
+       }
+
+       // If LDAP fails, try local login
+       const localResponse = await fetch(`${config.baseURL}/auth/login/local`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ username, password }),
+       });
+
+       const localData = await localResponse.json();
+       
+       if (localResponse.ok) {
+         login(localData.access_token, localData.refresh_token, rememberMe);
+         navigate(returnUrl);
+       } else {
+         alert(localData.message);
+       }
+     } catch (error) {
+       alert('Login failed. Please try again.');
+     }
+   }
+
   // Function to handle Enter key press
   function handleKeyPress(event) {
     if (event.key === 'Enter') {
-      loginUser();
+      // loginUser();
+      tryBothLogins();
     }
   }
 
@@ -87,7 +125,7 @@
       <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
       <div class="space-y-4">
 
-        <div class="flex items-center">
+        <!-- <div class="flex items-center">
           <input
             type="checkbox"
             id="ldapCheckbox"
@@ -95,7 +133,7 @@
             class="mr-2"
           />
           <label for="ldapCheckbox" class="text-gray-700">LDAP user</label>
-        </div>
+        </div> -->
 
 
 
@@ -123,7 +161,7 @@
         </div>
         <button
           class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
-          on:click={loginUser}
+          on:click={tryBothLogins}
         >
           Login
         </button>

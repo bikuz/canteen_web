@@ -98,23 +98,30 @@
                         {#each items as item}
                             <div class="border-b border-gray-200 pb-4 group hover:bg-gray-50 p-4 rounded-lg transition-colors">
                                 <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-1">{item.name}</h3>
+                                    <div class="flex gap-4 items-start">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.name}
+                                            class="w-12 h-12 object-cover rounded-lg"
+                                        />
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-800 mb-1">{item.name}</h3>
+                                            {#if item.description}
+                                                <p class="text-gray-600 mt-2 text-sm">{item.description}</p>
+                                            {/if}
+                                            {#if item.tags && item.tags.length > 0}
+                                                <div class="flex flex-wrap gap-2 mt-2">
+                                                    {#each item.tags as tag}
+                                                        <span class="px-2 py-1 bg-purple-100 text-purple-600 text-xs rounded-full">
+                                                            {tag}
+                                                        </span>
+                                                    {/each}
+                                                </div>
+                                            {/if}
+                                        </div>
                                     </div>
                                     <span class="text-lg font-bold text-blue-600">Rs. {item.price}</span>
                                 </div>
-                                {#if item.description}
-                                    <p class="text-gray-600 mt-2 text-sm">{item.description}</p>
-                                {/if}
-                                {#if item.tags && item.tags.length > 0}
-                                    <div class="flex flex-wrap gap-2 mt-2">
-                                        {#each item.tags as tag}
-                                            <span class="px-2 py-1 bg-purple-100 text-purple-600 text-xs rounded-full">
-                                                {tag}
-                                            </span>
-                                        {/each}
-                                    </div>
-                                {/if}
                             </div>
                         {/each}
                     </div>

@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { getItems } from '../services/apiHandler';
+    import { quintOut } from 'svelte/easing';
 
     let orders = [];
     let isLoading = true;
@@ -14,6 +15,7 @@
         completedOrders: 0,
         cancelledOrders: 0
     };
+    let selectedOrder = null;
 
     onMount(() => {
         const end = new Date();
@@ -97,6 +99,14 @@
 
     function formatCurrency(amount) {
         return `Rs. ${amount.toFixed(2)}`;
+    }
+
+    function showOrderDetail(order) {
+        selectedOrder = order;
+    }
+
+    function closeOrderDetail() {
+        selectedOrder = null;
     }
 </script>
 
@@ -236,7 +246,10 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {#each orders as order}
-                        <tr class="hover:bg-gray-50">
+                        <tr 
+                            class="hover:bg-gray-50 cursor-pointer"
+                            on:click={() => showOrderDetail(order)}
+                        >
                             <td class="px-6 py-2 whitespace-nowrap">
                                 #{order.shortId}
                                 <p class="text-sm text-gray-500 mt-1">{formatDate(order.createdAt)}</p>
@@ -251,6 +264,72 @@
                     {/each}
                 </tbody>
             </table>
+        </div>
+    {/if}
+
+    {#if selectedOrder}
+        <!-- Overlay -->
+        <div 
+            class="fixed inset-0 bg-black bg-opacity-50 z-40"
+            on:click={closeOrderDetail}
+        ></div>
+        <!-- Detail Panel -->
+        <div
+            class="fixed right-0 top-0 h-full w-full md:w-1/2 lg:w-1/3 bg-white z-50 shadow-xl"
+            transition:slide={{ duration: 300, easing: quintOut, axis: 'x' }}
+        >
+            <div class="h-full flex flex-col p-6">
+                <!-- Close Button -->
+                <button 
+                    class="absolute top-4 right-4 bg-red-600 text-gray-50 hover:text-gray-700"
+                    on:click={closeOrderDetail}
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <!-- Order ID (Fixed at the top) -->
+                <h2 class="text-2xl font-bold mb-4 flex-shrink-0">Order #{selectedOrder.shortId}</h2>
+
+                <!-- Scrollable Content -->
+                <div class="flex-grow overflow-y-auto space-y-6">
+                    <!-- Customer Information -->
+                    <div class="space-y-2 bg-gray-100 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold">Customer Information</h3>
+                        <p class="text-gray-600">Name: {selectedOrder.userProfile.firstName} {selectedOrder.userProfile.lastName}</p>
+                        <p class="text-gray-600">Email: {selectedOrder.userProfile.email}</p>
+                        <p class="text-gray-600">Phone: {selectedOrder.userProfile.phoneNumber}</p>
+                    </div>
+
+                    <!-- Order Information -->
+                    <div class="space-y-2 bg-gray-100 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold">Order Information</h3>
+                        <p class="text-gray-600">Date: {formatDate(selectedOrder.createdAt)}</p>
+                        <p class="text-gray-600">Status: {selectedOrder.status}</p>
+                        {#if selectedOrder.status === 'cancelled'}
+                            <p class="text-gray-600">Cancel Reason: {selectedOrder.cancelReason}</p>
+                        {/if}
+                        <p class="text-gray-600">Token: {selectedOrder.token}</p>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="space-y-2 bg-gray-100 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold">Order Items</h3>
+                        <ul class="list-disc list-inside">
+                            {#each selectedOrder.foodItems as item, index}
+                                <li class="text-gray-600">{item.name} - {selectedOrder.quantities[index]} x {formatCurrency(item.price)}</li>
+                            {/each}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Total Amount (Fixed at the bottom) -->
+                <div class="space-y-2 p-4 rounded-lg flex-shrink-0">
+                    <h3 class="text-lg font-semibold">Total Amount</h3>
+                    <p class="text-2xl font-bold text-blue-600">{formatCurrency(selectedOrder.totalPrice)}</p>
+                </div>
+            </div>
         </div>
     {/if}
 </div>

@@ -23,9 +23,14 @@
   import MakeOrder from './routes/MakeOrder.svelte';
   import MenuDisplay from './routes/MenuDisplay.svelte';
   import MenuDisplay2 from './routes/MenuDisplay2.svelte';
+  import RoleManagement from './routes/RoleManagement.svelte';
+  import UserManagement from './routes/UserManagement.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
-  import { Icon, ArrowUp, Bars3 } from "svelte-hero-icons";
+  import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
+    Square3Stack3d, ClipboardDocumentList, Squares2x2, ShoppingCart, 
+    CreditCard, ClipboardDocument, ListBullet, Clock, ArrowRightOnRectangle,
+     ArrowLeftOnRectangle} from "svelte-hero-icons";
   import { cart } from './stores/cartStore';
   import { onMount, beforeUpdate } from 'svelte';
   import { getAccessToken, resetInactivityTimer } from './services/auth';
@@ -145,35 +150,75 @@
   {:else}
       <div class="flex h-screen w-screen bg-gray-100 overflow-hidden">
           <!-- Sidebar -->
-          <aside class="w-64 bg-gray-800 text-white flex-shrink-0 h-full overflow-auto hidden lg:flex flex-col">
+          <aside class="w-64 bg-white text-gray-800 flex-shrink-0 h-full hidden lg:flex flex-col shadow-lg">
               <div class="p-4 text-2xl font-bold">
                 <img 
                 src="/images/icimod_logo.png" 
                 alt="Regional Data Explorer" 
                 class="w-32 h-full object-cover"
-            />
+                />
               </div>
-              <nav class="p-4 space-y-2">
-                  <Link to="/" class="block p-2 rounded hover:bg-gray-700">Home</Link>
+              <nav class="p-4 space-y-2 max-h-calc(100vh-10em) overflow-y-auto">
+                  <Link to="/" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                      <Icon src={HomeModern} size="20" />
+                      <span>Home</span>
+                  </Link>
                   
                   {#if $isAuthenticated}
-                      <!-- <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link> -->
-                      <!-- <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link> -->
-                      <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
-                      <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
-                      <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
-                      <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
-                      <Link to="/payMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Payment Management</Link>
-                      <Link to="/make-order" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Order</Link>
-                      <Link to="/make-payment" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Payment</Link>
+                      <Link to="/userMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={UserGroup} size="20" />
+                          <span>User Management</span>
+                      </Link>
+                      <Link to="/roleMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={UserCircle} size="20" />
+                          <span>Role Management</span>
+                      </Link>
+                      <Link to="/catMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={Square3Stack3d} size="20" />
+                          <span>Category Management</span>
+                      </Link>
+                      <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={ClipboardDocumentList} size="20" />
+                          <span>FoodItem Management</span>
+                      </Link>
+                      <Link to="/menuMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={Squares2x2} size="20" />
+                          <span>Menu Management</span>
+                      </Link>
+                      <Link to="/orderMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={ClipboardDocument} size="20" />
+                          <span>Order Management</span>
+                      </Link>
+                      <Link to="/payMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={CreditCard} size="20" />
+                          <span>Payment Management</span>
+                      </Link>
+                      <Link to="/make-order" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={ListBullet} size="20" />
+                          <span>Make Order</span>
+                      </Link>
+                      <Link to="/make-payment" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={CreditCard} size="20" />
+                          <span>Make Payment</span>
+                      </Link>
                       
-                      <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
-                      <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
-                      <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">
-                          Logout
+                      <Link to="/client/menu" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={Squares2x2} size="20" />
+                          <span>Menu</span>
+                      </Link>
+                      <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={Clock} size="20" />
+                          <span>Order History</span>
+                      </Link>
+                      <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                          <Icon src={ArrowRightOnRectangle} size="20" />
+                          <span>Logout</span>
                       </button>
                   {:else}
-                      <Link to="/login" class="block p-2 rounded hover:bg-gray-700">Login</Link>
+                      <Link to="/login" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                          <Icon src={ArrowLeftOnRectangle} size="20" />
+                          <span>Login</span>
+                      </Link>
                   {/if}
               </nav>
           </aside>
@@ -181,13 +226,13 @@
           <!-- Main Content -->
           <div class="flex flex-col flex-grow h-full overflow-hidden">
               <!-- Header -->
-              <header class="bg-gray-900 text-white p-4 shadow flex justify-between items-center">
+              <header class="bg-white text-gray-800 p-4 flex justify-between items-center shadow-lg">
                   
                   <!-- Mobile menu button -->
                   <button class="lg:hidden text-white p-1" on:click={toggleSidebar}>
                       <Icon src={Bars3} size="18" />
                    </button>  
-                   <h1 class="text-lg ml-2 uppercase ">Canteen Food Ordering System</h1>    
+                   <h1 class="text-lg text-gray-800 ml-2 uppercase font-bold">Canteen Food Ordering System</h1>    
                    
                    <!-- Cart indicator -->
                    {#if $isAuthenticated}
@@ -208,27 +253,29 @@
 
               
               <!-- Mobile Sidebar -->
-              <aside id="sidebar" class="lg:hidden fixed inset-0 bg-gray-800 text-white flex flex-col z-50 transform translate-x-full transition-transform duration-300" style="width: 250px;">
+              <aside id="sidebar" class="lg:hidden fixed inset-0 bg-white text-gray-800 flex flex-col z-50 transform translate-x-full transition-transform duration-300" style="width: 250px;">
                   <div class="p-4 text-2xl font-bold">App Logo</div>
                   <nav class="p-4 space-y-2">
-                      <Link to="/" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Home</Link>
+                      <Link to="/" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Home</Link>
                       {#if $isAuthenticated}
                           <!-- <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link>  -->
                           <!-- <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link> -->
-                          <Link to="/catMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Category Management</Link>
-                          <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>FoodItem Management</Link>
+                          <Link to="/userMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>User Management</Link>
+                          <Link to="/roleMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Role Management</Link>
+                          <Link to="/catMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Category Management</Link>
+                          <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>FoodItem Management</Link>
                           <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
-                          <Link to="/orderMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order Management</Link>
-                          <Link to="/payMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Payment Management</Link>
-                          <Link to="/make-order" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Order</Link>
-                          <Link to="/make-payment" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Make Payment</Link>  
+                          <Link to="/orderMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Order Management</Link>
+                          <Link to="/payMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Payment Management</Link>
+                          <Link to="/make-order" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Make Order</Link>
+                          <Link to="/make-payment" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Make Payment</Link>  
 
-                          <Link to="/client/menu" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu</Link>
-                          <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Order History</Link>
+                          <Link to="/client/menu" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Menu</Link>
+                          <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Order History</Link>
                           
-                          <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-gray-700">Logout</button>
+                          <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-blue-200">Logout</button>
                       {:else}
-                          <Link to="/login" class="block p-2 rounded hover:bg-gray-700">Login</Link>
+                          <Link to="/login" class="block p-2 rounded hover:bg-blue-200">Login</Link>
                       {/if}
                   </nav>
               </aside>
@@ -249,6 +296,9 @@
                   <ProtectedRoute path="/payMgmt" component={PaymentDashboard} />
                   <ProtectedRoute path="/make-payment" component={MakePayment} />
                   <ProtectedRoute path="/make-order" component={MakeOrder} />
+                  <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
+                  <ProtectedRoute path="/userMgmt" component={UserManagement} />
+
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
 

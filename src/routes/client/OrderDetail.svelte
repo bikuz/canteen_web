@@ -79,7 +79,7 @@
 
 <div class="container mx-auto p-4 max-w-4xl ">
     <button 
-        class="p-3 mb-2 flex items-center bg-blue-500 text-gray-50
+        class="p-3 mb-2 flex items-center bg-blue-500 text-gray-50 rounded-lg
          hover:text-blue-800 hover:bg-slate-200 transition-all duration-300 ease-in-out"
         on:click={goBack}
     >
