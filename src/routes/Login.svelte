@@ -13,6 +13,7 @@
    let isLdapUser = false; 
    let rememberMe = false;
    let returnUrl = '/';
+   let isLoading = false;
 
    async function validateReturnUrl(url) {
      try {
@@ -64,41 +65,44 @@
   }
 
   async function tryBothLogins() {
-     try {
-       // Try LDAP first
-       const ldapResponse = await fetch(`${config.baseURL}/auth/login/ldap`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ username, password }),
-       });
+    isLoading = true;
+    try {
+      // Try LDAP first
+      const ldapResponse = await fetch(`${config.baseURL}/auth/login/ldap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-       const ldapData = await ldapResponse.json();
-       
-       if (ldapResponse.ok) {
-         login(ldapData.access_token, ldapData.refresh_token, rememberMe);
-         navigate(returnUrl);
-         return;
-       }
+      const ldapData = await ldapResponse.json();
+      
+      if (ldapResponse.ok) {
+        login(ldapData.access_token, ldapData.refresh_token, rememberMe);
+        navigate(returnUrl);
+        return;
+      }
 
-       // If LDAP fails, try local login
-       const localResponse = await fetch(`${config.baseURL}/auth/login/local`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ username, password }),
-       });
+      // If LDAP fails, try local login
+      const localResponse = await fetch(`${config.baseURL}/auth/login/local`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-       const localData = await localResponse.json();
-       
-       if (localResponse.ok) {
-         login(localData.access_token, localData.refresh_token, rememberMe);
-         navigate(returnUrl);
-       } else {
-         alert(localData.message);
-       }
-     } catch (error) {
-       alert('Login failed. Please try again.');
-     }
-   }
+      const localData = await localResponse.json();
+      
+      if (localResponse.ok) {
+        login(localData.access_token, localData.refresh_token, rememberMe);
+        navigate(returnUrl);
+      } else {
+        alert(localData.message);
+      }
+    } catch (error) {
+      alert('Login failed. Please try again.');
+    } finally {
+      isLoading = false;
+    }
+  }
 
   // Function to handle Enter key press
   function handleKeyPress(event) {
@@ -160,10 +164,15 @@
           <label for="rememberMeCheckbox" class="text-gray-700">Remember Me</label>
         </div>
         <button
-          class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
+          class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 disabled:opacity-50"
           on:click={tryBothLogins}
+          disabled={isLoading}
         >
-          Login
+          {#if isLoading}
+            Logging in...
+          {:else}
+            Login
+          {/if}
         </button>
       </div>
     </div>

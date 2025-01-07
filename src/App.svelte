@@ -128,6 +128,10 @@
               endPoint: 'users/roles',
               onSuccess: (response) => {
                 userRoles.set(response);
+                // After roles are loaded, redirect customer to menu page if they're on the home page
+                if (path === '/' && response.includes('customer')) {
+                  navigate('/client/menu');
+                }
               }
             });
           }
@@ -224,7 +228,7 @@
                           </Link>
                       {/if}
 
-                      {#if userHasPermission('FoodItems.findAll')}
+                      {#if userHasPermission('Fooditems.findAll')}
                           <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={ClipboardDocumentList} size="20" />
                               <span>FoodItem Management</span>
@@ -357,7 +361,7 @@
                                   Category Management</Link>
                           {/if}
 
-                          {#if userHasPermission('FoodItems.findAll')}
+                          {#if userHasPermission('Fooditems.findAll')}
                               <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                   <Icon src={ClipboardDocumentList} size="20" />
                                   FoodItem Management</Link>

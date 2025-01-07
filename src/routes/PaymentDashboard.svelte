@@ -42,7 +42,7 @@
             if (selectedStatus) queryParams.append('paymentStatus', selectedStatus);
 
             await getItems({
-                endPoint: `orders?${queryParams.toString()}`,
+                endPoint: `payment/findOrders?${queryParams.toString()}`,
                 onSuccess: (response) => {
                     orders = response.sort((a, b) => 
                         new Date(b.createdAt) - new Date(a.createdAt)
