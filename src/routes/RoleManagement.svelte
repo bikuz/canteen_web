@@ -51,7 +51,9 @@
     );
 
     $: filteredPermissions = availablePermissions.filter(permission => 
-        !hasPermission(permission.controller, permission.action) &&
+        // Check if the permission is not already selected
+        !selectedPermissions.some(sp => sp.id === permission.id) &&
+        // Keep the existing filter text search
         permission.id.toLowerCase().includes(filterText.toLowerCase())
     );
 

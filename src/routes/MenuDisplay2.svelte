@@ -50,10 +50,13 @@
     onMount(async () => {
         try {
             await api.getItems({
-                endPoint: 'menus/day/Sunday/fooditems',
+                endPoint: 'menus/today/fooditems',
                 onSuccess: (data) => {
                     foodItems = data;
-                    categories = [...new Set(data.map(item => item.category))];
+                    // Extract unique categories using Set and map
+                    categories = Array.from(new Set(data.map(item => 
+                        JSON.stringify(item.category)
+                    ))).map(cat => JSON.parse(cat));
                     
                     isLoading = false;
                     startRotation();

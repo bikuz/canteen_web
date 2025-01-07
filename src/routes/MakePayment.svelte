@@ -35,7 +35,7 @@
             queryParams.append('paymentStatus', 'pending');
 
             await getItems({
-                endPoint: `orders?${queryParams.toString()}`,
+                endPoint: `orders/searchOrderPayment?${queryParams.toString()}`,
                 onSuccess: (response) => {
                     orders = response.sort((a, b) => 
                         new Date(b.createdAt) - new Date(a.createdAt)

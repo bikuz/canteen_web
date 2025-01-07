@@ -35,6 +35,8 @@
   import { onMount, beforeUpdate } from 'svelte';
   import { getAccessToken, resetInactivityTimer } from './services/auth';
   import ProtectedRoute from './partials/components/ProtectedRoute.svelte';
+  import { userPermissions, userRoles } from './stores/permissionStore';
+  import { getItems } from './services/apiHandler';
 
 
 
@@ -44,8 +46,10 @@
 
   // Function to handle logout and redirect
   const logout = () => {
-    logoutAction(); // Call the actual logout action
-    navigate('/');  // Redirect to home page
+    logoutAction();
+    userPermissions.set([]); // Clear permissions on logout
+    userRoles.set([]);
+    navigate('/');
   };
 
   function toggleSidebar() {
@@ -91,18 +95,50 @@
   //   'touchstart'
   // ];
 
-  // Add a function to check authentication
-  function checkAuth(path) {
-    // List of public routes that don't require authentication
-    const publicRoutes = ['/', '/login'];
+  // Make hasPermission reactive
+  $: userHasPermission = (permission) => {
+    // Check if userPermissions is loaded and not null/undefined
+    if (!$userPermissions) return false;
     
-    // If it's not a public route and user is not authenticated, redirect to login
+    return $userPermissions.includes('*.*') || $userPermissions.includes(permission);
+  }
+
+  $: userHasRole = (role) => {
+    // Check if userRoles is loaded and not null/undefined
+    if (!$userRoles) return false;
+    
+    return $userRoles.includes(role);
+  }
+  // Modify your existing checkAuth function
+  async function checkAuth(path) {
+    const publicRoutes = ['/', '/login', '/display', '/display2'];
+    
     if (!publicRoutes.includes(path) && !getAccessToken()) {
       const returnUrl = encodeURIComponent(path);
       navigate(`/login?returnUrl=${returnUrl}`);
+    } else if (getAccessToken() && $userPermissions.length === 0) {
+      // Fetch permissions if authenticated and permissions not loaded
+      try {
+        await getItems({
+          endPoint: 'users/permissions',
+          onSuccess: async (response) => {
+            userPermissions.set(response);
+
+            await getItems({
+              endPoint: 'users/roles',
+              onSuccess: (response) => {
+                userRoles.set(response);
+              }
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Failed to fetch permissions:', error);
+      }
     }
   }
 
+  
   // Add route protection
   beforeUpdate(() => {
     // Get current path
@@ -159,63 +195,96 @@
                 />
               </div>
               <nav class="p-4 space-y-2 max-h-calc(100vh-10em) overflow-y-auto">
-                  <Link to="/" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2">
-                      <Icon src={HomeModern} size="20" />
-                      <span>Home</span>
-                  </Link>
+                  {#if !userHasRole('customer')}
+                      <Link to="/" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                          <Icon src={HomeModern} size="20" />
+                          <span>Home</span>
+                      </Link>
+                  {/if}
                   
                   {#if $isAuthenticated}
-                      <Link to="/userMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={UserGroup} size="20" />
-                          <span>User Management</span>
-                      </Link>
-                      <Link to="/roleMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={UserCircle} size="20" />
-                          <span>Role Management</span>
-                      </Link>
-                      <Link to="/catMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={Square3Stack3d} size="20" />
-                          <span>Category Management</span>
-                      </Link>
-                      <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={ClipboardDocumentList} size="20" />
-                          <span>FoodItem Management</span>
-                      </Link>
-                      <Link to="/menuMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={Squares2x2} size="20" />
-                          <span>Menu Management</span>
-                      </Link>
-                      <Link to="/orderMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={ClipboardDocument} size="20" />
-                          <span>Order Management</span>
-                      </Link>
-                      <Link to="/payMgmt" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={CreditCard} size="20" />
-                          <span>Payment Management</span>
-                      </Link>
-                      <Link to="/make-order" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={ListBullet} size="20" />
-                          <span>Make Order</span>
-                      </Link>
-                      <Link to="/make-payment" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={CreditCard} size="20" />
-                          <span>Make Payment</span>
-                      </Link>
-                      
-                      <Link to="/client/menu" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                      {#if userHasPermission('User.findAll')}
+                          <Link to="/userMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={UserGroup} size="20" />
+                              <span>User Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Role.findAll')}
+                          <Link to="/roleMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={UserCircle} size="20" />
+                              <span>Role Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Categories.findAll')}
+                          <Link to="/catMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={Square3Stack3d} size="20" />
+                              <span>Category Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('FoodItems.findAll')}
+                          <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={ClipboardDocumentList} size="20" />
+                              <span>FoodItem Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Menus.findAll')}
+                          <Link to="/menuMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={Squares2x2} size="20" />
+                              <span>Menu Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Orders.findAll')}
+                          <Link to="/orderMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={ClipboardDocument} size="20" />
+                              <span>Order Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Payments.findAll')}
+                          <Link to="/payMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={CreditCard} size="20" />
+                              <span>Payment Management</span>
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Orders.searchOrderForPayment')}
+                            <Link to="/make-order" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                            <Icon src={ListBullet} size="20" />
+                            Make Order</Link>
+                        {/if}
+
+                        {#if userHasPermission('Payments.create')}
+                        <Link to="/make-payment" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                            <Icon src={CreditCard} size="20" />
+                            Make Payment</Link>  
+                        {/if}
+
+                      <!-- Client menus that don't need specific permissions -->
+                      {#if userHasPermission('Menus.fooditemsToday')}
+                      <Link to="/client/menu" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                           <Icon src={Squares2x2} size="20" />
                           <span>Menu</span>
-                      </Link>
-                      <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
-                          <Icon src={Clock} size="20" />
-                          <span>Order History</span>
-                      </Link>
-                      <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                          </Link>
+                      {/if}
+
+                      {#if userHasPermission('Orders.findOrderHistoryByUser')}
+                          <Link to="/client/orderHistory" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={Clock} size="20" />
+                              <span>Order History</span>
+                          </Link>
+                      {/if}
+
+                      <button on:click={logout} class="w-full text-left p-2 rounded hover:bg-blue-200 flex items-center gap-2">
                           <Icon src={ArrowRightOnRectangle} size="20" />
                           <span>Logout</span>
                       </button>
                   {:else}
-                      <Link to="/login" class="block p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                      <Link to="/login" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2">
                           <Icon src={ArrowLeftOnRectangle} size="20" />
                           <span>Login</span>
                       </Link>
@@ -229,7 +298,7 @@
               <header class="bg-white text-gray-800 p-4 flex justify-between items-center shadow-lg">
                   
                   <!-- Mobile menu button -->
-                  <button class="lg:hidden text-white p-1" on:click={toggleSidebar}>
+                  <button class="lg:hidden text-gray-800 p-1" on:click={toggleSidebar}>
                       <Icon src={Bars3} size="18" />
                    </button>  
                    <h1 class="text-lg text-gray-800 ml-2 uppercase font-bold">Canteen Food Ordering System</h1>    
@@ -253,29 +322,96 @@
 
               
               <!-- Mobile Sidebar -->
-              <aside id="sidebar" class="lg:hidden fixed inset-0 bg-white text-gray-800 flex flex-col z-50 transform translate-x-full transition-transform duration-300" style="width: 250px;">
-                  <div class="p-4 text-2xl font-bold">App Logo</div>
+              <aside id="sidebar" class="lg:hidden fixed inset-0 bg-white text-gray-800 
+              flex flex-col z-50 transform translate-x-full transition-transform 
+              duration-300" style="width: 250px;">
+                  <div class="p-4 text-2xl font-bold">
+                    <img 
+                        src="/images/icimod_logo.png" 
+                        alt="Regional Data Explorer" 
+                        class="w-32 h-full object-cover"
+                        />
+                  </div>
                   <nav class="p-4 space-y-2">
-                      <Link to="/" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Home</Link>
+                      {#if !userHasRole('customer')}
+                          <Link to="/" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={HomeModern} size="20" />
+                              Home</Link>
+                      {/if}
                       {#if $isAuthenticated}
-                          <!-- <Link to="/MainDashboard" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Main Dashboard</Link>  -->
-                          <!-- <Link to="/dbAdmin" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Dashboard Admin</Link> -->
-                          <Link to="/userMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>User Management</Link>
-                          <Link to="/roleMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Role Management</Link>
-                          <Link to="/catMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Category Management</Link>
-                          <Link to="/fooditemMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>FoodItem Management</Link>
-                          <Link to="/menuMgmt" class="block p-2 rounded hover:bg-gray-700" on:click={closeSidebar}>Menu Management</Link>
-                          <Link to="/orderMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Order Management</Link>
-                          <Link to="/payMgmt" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Payment Management</Link>
-                          <Link to="/make-order" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Make Order</Link>
-                          <Link to="/make-payment" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Make Payment</Link>  
+                          {#if userHasPermission('User.findAll')}
+                              <Link to="/userMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={UserGroup} size="20" />
+                                  User Management</Link>
+                          {/if}
 
-                          <Link to="/client/menu" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Menu</Link>
-                          <Link to="/client/orderHistory" class="block p-2 rounded hover:bg-blue-200" on:click={closeSidebar}>Order History</Link>
-                          
-                          <button on:click={logout} class="block w-full text-left p-2 rounded hover:bg-blue-200">Logout</button>
+                          {#if userHasPermission('Role.findAll')}
+                              <Link to="/roleMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={UserCircle} size="20" />
+                                  Role Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('Categories.findAll')}
+                              <Link to="/catMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={Square3Stack3d} size="20" />
+                                  Category Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('FoodItems.findAll')}
+                              <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={ClipboardDocumentList} size="20" />
+                                  FoodItem Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('Menus.findAll')}
+                              <Link to="/menuMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={Squares2x2} size="20" />
+                                  Menu Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('Orders.findAll')}
+                              <Link to="/orderMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={ClipboardDocument} size="20" />
+                                  Order Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('Payments.findAll')}
+                              <Link to="/payMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                  <Icon src={CreditCard} size="20" />
+                                  Payment Management</Link>
+                          {/if}
+
+                          {#if userHasPermission('Orders.create')}
+                          <Link to="/make-order" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={ListBullet} size="20" />
+                              Make Order</Link>
+                          {/if}
+
+                          {#if userHasPermission('Payments.create')}
+                          <Link to="/make-payment" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={CreditCard} size="20" />
+                              Make Payment</Link>  
+                          {/if}
+
+                          {#if userHasPermission('Menus.fooditemsToday')}  
+                          <Link to="/client/menu" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>  
+                              <Icon src={Squares2x2} size="20" />
+                              Menu</Link>
+                          {/if}
+
+                          {#if userHasPermission('Orders.findOrderHistoryByUser')}
+                          <Link to="/client/orderHistory" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={Clock} size="20" />
+                              Order History</Link>
+                          {/if}
+
+                          <button on:click={logout} class="w-full text-left p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                              <Icon src={ArrowRightOnRectangle} size="20" />
+                              Logout</button>
                       {:else}
-                          <Link to="/login" class="block p-2 rounded hover:bg-blue-200">Login</Link>
+                          <Link to="/login" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2">
+                              <Icon src={ArrowLeftOnRectangle} size="20" />
+                              Login</Link>
                       {/if}
                   </nav>
               </aside>

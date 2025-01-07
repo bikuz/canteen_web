@@ -1,7 +1,8 @@
 <script>
     import { onMount } from 'svelte';
-    import { getItems } from '../services/apiHandler';
+    import { fade, slide } from 'svelte/transition';
     import { quintOut } from 'svelte/easing';
+    import { getItems } from '../services/apiHandler';
 
     let orders = [];
     let isLoading = true;
@@ -272,6 +273,7 @@
         <div 
             class="fixed inset-0 bg-black bg-opacity-50 z-40"
             on:click={closeOrderDetail}
+            transition:fade
         ></div>
         <!-- Detail Panel -->
         <div
