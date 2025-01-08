@@ -1,4 +1,4 @@
 export const config = {
-    // baseURL: 'http://canteen.icimod.org/api'
-    baseURL: 'http://localhost:3000'
+    baseURL: 'https://canteen.icimod.org/api'
+    // baseURL: 'http://localhost:3000'
 };
