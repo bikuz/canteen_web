@@ -73,6 +73,7 @@
 
     export const menus=writable([]);
     let lstFooditems=[];
+    let categories = [];
     let daysFooditems=[];
     let isGridView = writable(true); // Default to grid view
     let currentPage = 1; // Current active page
@@ -326,9 +327,22 @@
         isShowFoodPopup=false;
     }
 
+    async function fetchCategories(){
+        await api.getItems({
+            endPoint: 'categories',
+            onSuccess: (data) => {
+            
+              categories = [{ _id: 'all', name: 'All' }, ...data];
+            },
+            onError: (error) => console.error('Error fetching categories:', error),
+        });
+    }
+
     onMount(() => {
         fetchFoodItems();
         fetchMenus(currentPage, limit);
+        fetchCategories();
+        
     });
 </script>
 
@@ -351,6 +365,7 @@
   bind:isShowPopup={isShowFoodPopup}
   bind:menuFoodItems={newMenu.foodItems}
   foodItems={lstFooditems}
+  categories={categories}
   onSubmit={updateMenu}
   onCancel={closeFoodItems}
 />
