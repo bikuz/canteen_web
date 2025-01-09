@@ -385,7 +385,7 @@
                                   Payment Management</Link>
                           {/if}
 
-                          {#if userHasPermission('Orders.create')}
+                          {#if userHasPermission('Orders.searchOrderForPayment')}
                           <Link to="/make-order" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={ListBullet} size="20" />
                               Make Order</Link>
