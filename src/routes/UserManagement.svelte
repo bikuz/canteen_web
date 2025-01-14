@@ -33,6 +33,13 @@
     let filterText = '';
     let availableRoles = [];
 
+    // Add new state variables for search and pagination
+    let searchQuery = '';
+    let currentPage = 1;
+    let limit = 10;
+    let totalPages = 1;
+    let totalItems = 0;
+
     // Add this reactive statement
     $: filteredRoles = roles.filter(role => 
         !currentUser.roles.some(r => r._id === role._id) &&
@@ -162,9 +169,11 @@
         isLoading = true;
         try {
             await getItems({
-                endPoint: 'users',
+                endPoint: `users?search=${searchQuery}&page=${currentPage}&limit=${limit}`,
                 onSuccess: (response) => {
-                    users = response;
+                    users = response.data;
+                    totalItems = response.meta.total;
+                    totalPages = response.meta.totalPages;
                 }
             });
         } catch (error) {
@@ -273,6 +282,29 @@
         isEditing = true;
         showUserModal = true;
     }
+
+    // Add debounced search handler
+    let searchTimeout;
+    function handleSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentPage = 1; // Reset to first page on new search
+            fetchUsers();
+        }, 300);
+    }
+
+    // Add pagination handler
+    function handlePageChange(newPage) {
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            fetchUsers();
+        }
+    }
+
+    // Watch for search changes
+    $: if (searchQuery !== undefined) {
+        handleSearch();
+    }
 </script>
 
 <style>
@@ -293,6 +325,21 @@
         >
             Create New User
         </button>
+    </div>
+
+    <!-- Add Search Bar -->
+    <div class="mb-4 relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+        </div>
+        <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search users..."
+            class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
     </div>
 
     {#if isLoading}
@@ -349,6 +396,43 @@
                     {/each}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Add Pagination Controls -->
+        <div class="mt-4 flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, totalItems)} of {totalItems} entries
+            </div>
+            <div class="flex space-x-2">
+                <button
+                    class="px-3 py-1 rounded border {currentPage === 1 ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-50'}"
+                    on:click={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Previous
+                </button>
+                
+                {#each Array(totalPages) as _, i}
+                    {#if i + 1 === 1 || i + 1 === totalPages || (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)}
+                        <button
+                            class="px-3 py-1 rounded border {currentPage === i + 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}"
+                            on:click={() => handlePageChange(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    {:else if i + 1 === currentPage - 2 || i + 1 === currentPage + 2}
+                        <span class="px-2 py-1">...</span>
+                    {/if}
+                {/each}
+
+                <button
+                    class="px-3 py-1 rounded border {currentPage === totalPages ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-50'}"
+                    on:click={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     {/if}
 

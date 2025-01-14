@@ -7,6 +7,8 @@
    import MainDashboard from './MainDashboard.svelte';
    import { onMount } from 'svelte';
    import {config } from '../../app.config';
+   import { user } from '../stores/userStore.js';
+   import { getItems } from '../services/apiHandler';
 
 
    let username = '';
@@ -79,6 +81,7 @@
       
       if (ldapResponse.ok) {
         login(ldapData.access_token, ldapData.refresh_token, rememberMe);
+        await fetchUserProfile();
         navigate(returnUrl);
         return;
       }
@@ -94,6 +97,7 @@
       
       if (localResponse.ok) {
         login(localData.access_token, localData.refresh_token, rememberMe);
+        await fetchUserProfile();
         navigate(returnUrl);
       } else {
         alert(localData.message);
@@ -102,6 +106,20 @@
       alert('Login failed. Please try again.');
     } finally {
       isLoading = false;
+    }
+  }
+
+  // Add new function to fetch user profile
+  async function fetchUserProfile() {
+    try {
+      await getItems({
+        endPoint: 'users/profile',
+        onSuccess: (response) => {
+          user.set(response);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
     }
   }
 
