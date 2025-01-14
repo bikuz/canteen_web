@@ -36,9 +36,16 @@
     // Add new state variables for search and pagination
     let searchQuery = '';
     let currentPage = 1;
-    let limit = 10;
+    let limit = "10";
     let totalPages = 1;
     let totalItems = 0;
+
+    const visiblePages = 5; // Number of pages to display
+
+    // Derived pages to show
+    $: startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+    $: endPage = Math.min(totalPages, startPage + visiblePages - 1);
+    $: pagesToShow = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
     // Add this reactive statement
     $: filteredRoles = roles.filter(role => 
@@ -348,7 +355,7 @@
         </div>
     {:else}
         <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow max-h-[calc(100vh-11rem)] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow max-h-[calc(100vh-18rem)] overflow-y-auto">
             <table class="min-w-full">
                 <thead class="bg-gray-50 sticky top-0">
                     <tr>
@@ -400,37 +407,74 @@
 
         <!-- Add Pagination Controls -->
         <div class="mt-4 flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, totalItems)} of {totalItems} entries
-            </div>
-            <div class="flex space-x-2">
-                <button
-                    class="px-3 py-1 rounded border {currentPage === 1 ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-50'}"
-                    on:click={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700">page size: </span>
+                <select 
+                    bind:value={limit} 
+                    on:change={() => handlePageChange(1)}
+                    class="border rounded px-2 py-1 text-sm"
                 >
-                    Previous
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <!-- <span class="text-sm text-gray-700">entries</span> -->
+            </div>
+
+            <div class="flex items-center justify-center space-x-2">
+                <!-- First Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === 1}
+                    on:click={() => handlePageChange(1)}
+                >
+                    <i class="fas fa-angle-double-left"></i>
                 </button>
                 
-                {#each Array(totalPages) as _, i}
-                    {#if i + 1 === 1 || i + 1 === totalPages || (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)}
-                        <button
-                            class="px-3 py-1 rounded border {currentPage === i + 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}"
-                            on:click={() => handlePageChange(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
-                    {:else if i + 1 === currentPage - 2 || i + 1 === currentPage + 2}
-                        <span class="px-2 py-1">...</span>
-                    {/if}
-                {/each}
-
+                <!-- Previous Page Button -->
                 <button
-                    class="px-3 py-1 rounded border {currentPage === totalPages ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-50'}"
-                    on:click={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === 1}
+                    on:click={() => handlePageChange(currentPage - 1)}
                 >
-                    Next
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                
+                <!-- Page Numbers -->
+                {#if startPage > 1}
+                    <span class="px-3 py-2">...</span>
+                {/if}
+                
+                {#each pagesToShow as page}
+                    <button
+                        class="px-3 py-2 rounded-lg transition {currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}"
+                        on:click={() => handlePageChange(page)}
+                    >
+                        {page}
+                    </button>
+                {/each}
+                
+                {#if endPage < totalPages}
+                    <span class="px-3 py-2">...</span>
+                {/if}
+                
+                <!-- Next Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === totalPages}
+                    on:click={() => handlePageChange(currentPage + 1)}
+                >
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                
+                <!-- Last Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === totalPages}
+                    on:click={() => handlePageChange(totalPages)}
+                >
+                    <i class="fas fa-angle-double-right"></i>
                 </button>
             </div>
         </div>
