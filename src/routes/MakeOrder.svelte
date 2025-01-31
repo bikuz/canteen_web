@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
     import * as api from '../services/apiHandler';
+    import UserSearch from '../partials/components/UserSearch.svelte';
 
     let categories = [];
     let foodItems = [];
@@ -11,6 +12,10 @@
     let selectedOrderItemIndex = -1;
     let order = writable([]);
     let showInvoicePopup = false;
+    let selectedUser = null;
+    let isGuestOrder = true;
+    let showUserTypeSelection = false;
+    let isPanelOpen = false;
 
     // Add a summary of keyboard shortcuts
     const keyboardShortcuts = [
@@ -163,6 +168,13 @@
             return;
         }
 
+        // Verify user selection for registered user orders
+        if (!isGuestOrder && !selectedUser) {
+            alert('Please select a user for registered order');
+            isPanelOpen = true; // Open the panel to select user
+            return;
+        }
+
         // First show the invoice popup
         showInvoicePopup = true;
     }
@@ -177,11 +189,18 @@
                 paymentMethod: 'cash',
             };
 
+            if (!isGuestOrder && selectedUser) {
+                orderData.userId = selectedUser._id;
+            } else {
+                orderData.isGuestOrder = true;
+            }
+
             await api.createItem(orderData, {
                 endPoint: 'orders/createOrderPayment',
                 onSuccess: (response) => {
                     showInvoicePopup = false;
                     order.set([]); // Clear the order
+                    selectedUser = null; // Reset selected user
                     alert('Order created successfully!');
                 },
                 onError: (error) => {
@@ -196,11 +215,44 @@
     // Calculate total items and total amount
     $: totalItems = $order.reduce((sum, item) => sum + item.quantity, 0);
     $: totalAmount = $order.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Create a new type of order creation that includes user selection
+    async function createOrder(orderData, userType = 'guest') {
+        if (userType === 'registered') {
+            // Include user ID in the order
+            orderData.userId = selectedUser.id;
+        } else {
+            // Guest order (current implementation)
+            orderData.isGuestOrder = true;
+        }
+        
+        // Rest of your order creation logic
+    }
 </script>
 
 <!-- Display keyboard shortcuts -->
 <div class="bg-blue-100 p-2 rounded-lg mb-2 text-sm shadow">
-    <h1 class="text-lg font-bold mb-2">Make Order</h1>
+    <!-- <h1 class="text-lg font-bold mb-2">Make Order</h1>
+      -->
+    <!-- Add button to top right corner and sliding panel -->
+<div class="fixed top-20 right-4">
+    <button 
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        on:click={() => isPanelOpen = !isPanelOpen}
+    >
+        {#if isGuestOrder}
+            Guest Order
+        {:else if selectedUser}
+            {selectedUser.firstName} {selectedUser.lastName}
+        {:else}
+            Registered User
+        {/if}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
+    </button>
+</div>
+
     <div class="flex justify-between items-start mb-2">
         <h3 class="font-semibold">Keyboard Shortcuts:</h3>
     </div>
@@ -217,13 +269,63 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
+
+
+<!-- Sliding Panel -->
+<div class="fixed inset-y-0 right-0 w-80 bg-white shadow-lg transform transition-transform duration-300 z-30 {isPanelOpen ? 'translate-x-0' : 'translate-x-full'}">
+    <div class="p-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">Order Type</h2>
+            <button 
+                class="text-gray-500 hover:text-gray-700"
+                on:click={() => isPanelOpen = false}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <button 
+                class="w-full px-4 py-2 rounded-lg {isGuestOrder ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+                on:click={() => {
+                    isGuestOrder = true;
+                    selectedUser = null;
+                }}
+            >
+                Guest Order
+            </button>
+            <button 
+                class="w-full px-4 py-2 rounded-lg {!isGuestOrder ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+                on:click={() => isGuestOrder = false}
+            >
+                Registered User
+            </button>
+
+            {#if !isGuestOrder}
+                <div class="mt-6">
+                    <UserSearch bind:selectedUser />
+                </div>
+            {/if}
+        </div>
+    </div>
+</div>
+
+<!-- Rest of your existing order interface -->
 <div class="cashier-panel flex h-full">
     <!-- Categories Section -->
     <div class=" w-4/12 bg-gray-100 p-4 ">
         <h2 class="text-lg font-bold mb-4">Categories</h2>
         <div class="categories max-h-[calc(100vh-20rem)] overflow-y-auto">
             {#each categories as category, index}
-                <div class="{selectedCategoryIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200">
+                <div 
+                    class="{selectedCategoryIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200"
+                    on:click={() => {
+                        selectedCategoryIndex = index;
+                        scrollToItem('categories', index);
+                    }}
+                >
                     {category.name}
                 </div>
             {/each}
@@ -235,7 +337,14 @@
         <h2 class="text-lg font-bold mb-4">Food Items</h2>
         <div class="food-items max-h-[calc(100vh-20rem)] overflow-y-auto">
             {#each filteredFoodItems as item, index}
-                <div class="{selectedItemIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200">
+                <div 
+                    class="{selectedItemIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200"
+                    on:click={() => {
+                        selectedItemIndex = index;
+                        scrollToItem('food-items', index);
+                        addItemToOrder(item);
+                    }}
+                >
                     <h3 class="font-semibold">{item.name}</h3>
                     <p class="text-sm text-gray-600">Rs. {item.price}</p>
                 </div>
@@ -254,9 +363,36 @@
 
         <div class="order-summary max-h-[calc(100vh-24rem)] overflow-y-auto">
             {#each $order as item, index}
-                <div class="{selectedOrderItemIndex === index ? 'selected' : ''} p-2">
+                <div 
+                    class="{selectedOrderItemIndex === index ? 'selected' : ''} p-2 cursor-pointer hover:bg-gray-200"
+                    on:click={() => {
+                        selectedOrderItemIndex = index;
+                        scrollToItem('order-summary', index);
+                    }}
+                >
                     <h3 class="font-semibold">{item.name} x {item.quantity}</h3>
                     <p class="text-sm text-gray-600">Rs. {(item.price * item.quantity).toFixed(2)}</p>
+                    <!-- Add action buttons for the selected item -->
+                    <div class="flex gap-2 mt-2">
+                        <button 
+                            class="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                            on:click|stopPropagation={() => addItemToOrder(item)}
+                        >
+                            +
+                        </button>
+                        <button 
+                            class="px-2 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                            on:click|stopPropagation={() => deductItemFromOrder(item)}
+                        >
+                            -
+                        </button>
+                        <button 
+                            class="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                            on:click|stopPropagation={() => removeItemFromOrder(item)}
+                        >
+                            Remove
+                        </button>
+                    </div>
                 </div>
             {/each}
         </div>
@@ -278,6 +414,14 @@
             <div class="p-6 border-b">
                 <h2 class="text-2xl font-bold">Order Invoice ({totalItems} items)</h2>
             </div>
+            
+            <!-- Add user information if it's a registered user order -->
+            {#if !isGuestOrder && selectedUser}
+                <div class="px-6 py-2 border-b">
+                    <p class="font-semibold">Customer: {selectedUser.firstName} {selectedUser.lastName}</p>
+                    <p class="text-sm text-gray-600">Phone: {selectedUser.phoneNumber}</p>
+                </div>
+            {/if}
             
             <!-- Scrollable Content -->
             <div class="p-6 overflow-y-auto flex-1">
@@ -323,5 +467,8 @@
 <style>
     .selected {
         background-color: #c5dcf9;
+    }
+    :global(body) {
+        overflow-x: hidden;
     }
 </style>
