@@ -286,17 +286,18 @@
 
                             <!-- Action Buttons -->
                             <div class="flex space-x-4 pt-4">
-                                <button 
-                                    class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                                    on:click={() => addToCart(selectedItem)}
-                                >
-                                    Add to Cart
-                                </button>
-                                <button 
-                                    class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
-                                >
-                                    Order Now
-                                </button>
+                                {#if selectedDay === days[todayIndex]}
+                                    <button 
+                                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+                                        on:click={() => addToCart(selectedItem)}
+                                    >
+                                        Add to Cart
+                                    </button>
+                                <!-- {:else}
+                                    <div class="flex-1 text-center text-gray-600">
+                                        Not available today
+                                    </div> -->
+                                {/if}
                             </div>
                         </div>
                     </div>
