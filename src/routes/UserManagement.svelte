@@ -266,11 +266,12 @@
                     {
                         endPoint: 'users',
                         onSuccess: (response) => {
-                            if(response.success) {
-                                fetchUsers();
-                            } else {
-                                alert(response.message);
-                            }
+                            fetchUsers();
+                            // if(response.success) {
+                            //     fetchUsers();
+                            // } else {
+                            //     alert(response.message);
+                            // }
                         }
                     }
                 );
