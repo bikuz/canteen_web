@@ -25,6 +25,7 @@
   import MenuDisplay2 from './routes/MenuDisplay2.svelte';
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
+  import DeleteAccount from './routes/DeleteAccount.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
@@ -39,7 +40,7 @@
   import { getItems } from './services/apiHandler';
   import { user } from './stores/userStore.js';
   import { clickOutside } from './directives/clickOutside.js';
-
+  
 
 
   // $: token = $isAuthenticated;
@@ -517,6 +518,7 @@
                   <ProtectedRoute path="/make-order" component={MakeOrder} />
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
+                  <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
