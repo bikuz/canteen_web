@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   // import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
+  // import { goto } from '$app/navigation';
 
 //   let token: string | null = null;
   let isLoading = false;
@@ -28,7 +28,7 @@
             endPoint: 'users/me',
             onSuccess: () => {
                 success=true;
-                setTimeout(() => goto('/'), 3000);
+                // setTimeout(() => goto('/'), 3000);
             },
             onError: (err) => {error=err.message},
         });
@@ -62,7 +62,7 @@
         </div>
         <h2 class="mt-3 text-lg font-medium text-gray-900">Account Deleted</h2>
         <p class="mt-2 text-sm text-gray-500">
-          Your account has been successfully anonymized. You will be redirected shortly.
+          Your account has been successfully anonymized.
         </p>
       </div>
     {:else}
