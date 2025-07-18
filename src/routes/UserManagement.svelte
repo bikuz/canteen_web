@@ -34,10 +34,10 @@
     let availableRoles = [];
 
     // Add this reactive statement
-    $: filteredRoles = roles.filter(role => 
+    $: filteredRoles = roles ? roles.filter(role => 
         !currentUser.roles.some(r => r._id === role._id) &&
         role.name.toLowerCase().includes(filterText.toLowerCase())
-    );
+    ) : [];
 
     // Add this reactive statement at the top with other reactive declarations
     $: selectedRoles = currentUser.roles || [];
@@ -164,7 +164,7 @@
             await getItems({
                 endPoint: 'users',
                 onSuccess: (response) => {
-                    users = response;
+                    users = Array.isArray(response) ? response : [];
                 }
             });
         } catch (error) {
@@ -179,7 +179,7 @@
             await getItems({
                 endPoint: 'roles',
                 onSuccess: (response) => {
-                    roles = response;
+                    roles = Array.isArray(response) ? response : [];
                 }
             });
         } catch (error) {
@@ -268,7 +268,8 @@
         currentUser = {
             ...user,
             password: '',
-            profile: { ...user.profile }
+            profile: { ...user.profile },
+            roles: Array.isArray(user.roles) ? [...user.roles] : []
         };
         isEditing = true;
         showUserModal = true;
@@ -324,7 +325,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">{user.profile.email}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{user.profile.phoneNumber}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {#each user.roles as role}
+                                {#each user.roles || [] as role}
                                     <div>{role.name}</div>
                                 {/each}
                             </td>
@@ -454,7 +455,7 @@
                                                 <h4 class="font-medium">Available Roles</h4>
                                             </div>
                                             <div class="border rounded h-full overflow-y-auto no-select">
-                                                {#each filteredRoles as role, index}
+                                                {#each filteredRoles || [] as role, index}
                                                     <div
                                                         class="p-2 hover:bg-blue-200 cursor-pointer {selectedRoleIds.has(role._id) ? 'bg-blue-200' : ''}"
                                                         on:click={(e) => toggleLeftSelection(role._id, e, index)}
@@ -493,7 +494,7 @@
                                                 <h4 class="font-medium">Selected Roles</h4>
                                             </div>
                                             <div class="border rounded h-full overflow-y-auto no-select">
-                                                {#each selectedRoles as role, index}
+                                                {#each selectedRoles || [] as role, index}
                                                     <div
                                                         class="p-2 hover:bg-blue-200 cursor-pointer {assignedRoleIds.has(role._id) ? 'bg-blue-200' : ''}"
                                                         on:click={(e) => toggleRightSelection(role._id, e, index)}
@@ -529,4 +530,4 @@
             </div>
         </div>
     {/if}
-</div> 
+</div>
