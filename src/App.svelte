@@ -25,6 +25,7 @@
   import MenuDisplay2 from './routes/MenuDisplay2.svelte';
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
+  import DeleteAccount from './routes/DeleteAccount.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
@@ -37,12 +38,14 @@
   import ProtectedRoute from './partials/components/ProtectedRoute.svelte';
   import { userPermissions, userRoles } from './stores/permissionStore';
   import { getItems } from './services/apiHandler';
-
+  import { user } from './stores/userStore.js';
+  import { clickOutside } from './directives/clickOutside.js';
+  
 
 
   // $: token = $isAuthenticated;
   let isSidebarOpen  = false;
-  
+  let showProfileMenu = false;
 
   // Function to handle logout and redirect
   const logout = () => {
@@ -128,6 +131,10 @@
               endPoint: 'users/roles',
               onSuccess: (response) => {
                 userRoles.set(response);
+                // After roles are loaded, redirect customer to menu page if they're on the home page
+                if (path === '/' && response.includes('customer')) {
+                  navigate('/client/menu');
+                }
               }
             });
           }
@@ -146,10 +153,24 @@
     checkAuth(path);
   });
 
-  onMount(() => {
+  onMount(async () => {
     // Initial auth check
     const path = window.location.pathname;
-    checkAuth(path);
+    await checkAuth(path);
+
+    // Fetch user profile if authenticated
+    if ($isAuthenticated) {
+      try {
+        await getItems({
+          endPoint: 'users/profile',
+          onSuccess: (response) => {
+            user.set(response);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    }
 
     // Listen for session expiration
     const handleSessionExpired = () => {
@@ -174,6 +195,21 @@
   //     resetInactivityTimer();
   //   }
   // });
+
+  // Function to get initials
+  function getInitials(firstName, lastName) {
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+  }
+
+  // Function to handle profile menu
+  function toggleProfileMenu() {
+    showProfileMenu = !showProfileMenu;
+  }
+
+  // Function to close profile menu
+  function closeProfileMenu() {
+    showProfileMenu = false;
+  }
 
 </script>
 
@@ -224,7 +260,7 @@
                           </Link>
                       {/if}
 
-                      {#if userHasPermission('FoodItems.findAll')}
+                      {#if userHasPermission('Fooditems.findAll')}
                           <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={ClipboardDocumentList} size="20" />
                               <span>FoodItem Management</span>
@@ -303,21 +339,69 @@
                    </button>  
                    <h1 class="text-lg text-gray-800 ml-2 uppercase font-bold">Canteen Food Ordering System</h1>    
                    
-                   <!-- Cart indicator -->
-                   {#if $isAuthenticated}
-                       <div class="relative">
-                           <Link to="/cart" class="flex items-center">
-                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                               </svg>
-                               {#if cartItemCount > 0}
-                                   <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                                       {cartItemCount}
-                                   </span>
+                   <!-- Cart and Profile section -->
+                   <div class="flex items-center gap-4">
+                       {#if $isAuthenticated}
+                           <!-- Cart Icon -->
+                           <div class="relative">
+                               <Link to="/cart" class="flex items-center">
+                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                   </svg>
+                                   {#if cartItemCount > 0}
+                                       <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                           {cartItemCount}
+                                       </span>
+                                   {/if}
+                               </Link>
+                           </div>
+
+                           <!-- Profile Button -->
+                           <div class="relative">
+                               <!-- svelte-ignore a11y-click-events-have-key-events -->
+                               <button 
+                                   class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium"
+                                   on:click={toggleProfileMenu}
+                               >
+                                   {getInitials($user?.firstName, $user?.lastName)}
+                               </button>
+
+                               <!-- Profile Dropdown Menu -->
+                               {#if showProfileMenu}
+                                   <div 
+                                       class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg p-3 z-50"
+                                       use:clickOutside
+                                       on:click_outside={closeProfileMenu}
+                                   >
+                                       <!-- User Info -->
+                                       <div class="px-0 py-2 border-b">
+                                           <p class="text-sm font-medium text-gray-900">{$user?.firstName} {$user?.lastName}</p>
+                                           <p class="text-sm text-gray-500">{$user?.email}</p>
+                                       </div>
+
+                                       <!-- Menu Items -->
+                                       <!-- <Link 
+                                           to="/profile" 
+                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                           on:click={closeProfileMenu}
+                                       >
+                                           Profile Settings
+                                       </Link> -->
+                                       
+                                       <button 
+                                           on:click={() => {
+                                               logout();
+                                               closeProfileMenu();
+                                           }} 
+                                           class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       >
+                                           Logout
+                                       </button>
+                                   </div>
                                {/if}
-                           </Link>
-                       </div>
-                   {/if}
+                           </div>
+                       {/if}
+                   </div>
               </header>
 
               
@@ -357,7 +441,7 @@
                                   Category Management</Link>
                           {/if}
 
-                          {#if userHasPermission('FoodItems.findAll')}
+                          {#if userHasPermission('Fooditems.findAll')}
                               <Link to="/fooditemMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                   <Icon src={ClipboardDocumentList} size="20" />
                                   FoodItem Management</Link>
@@ -381,7 +465,7 @@
                                   Payment Management</Link>
                           {/if}
 
-                          {#if userHasPermission('Orders.create')}
+                          {#if userHasPermission('Orders.searchOrderForPayment')}
                           <Link to="/make-order" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={ListBullet} size="20" />
                               Make Order</Link>
@@ -434,6 +518,7 @@
                   <ProtectedRoute path="/make-order" component={MakeOrder} />
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
+                  <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />

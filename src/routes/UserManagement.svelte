@@ -33,6 +33,20 @@
     let filterText = '';
     let availableRoles = [];
 
+    // Add new state variables for search and pagination
+    let searchQuery = '';
+    let currentPage = 1;
+    let limit = "10";
+    let totalPages = 1;
+    let totalItems = 0;
+
+    const visiblePages = 5; // Number of pages to display
+
+    // Derived pages to show
+    $: startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+    $: endPage = Math.min(totalPages, startPage + visiblePages - 1);
+    $: pagesToShow = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
     // Add this reactive statement
     $: filteredRoles = roles ? roles.filter(role => 
         !currentUser.roles.some(r => r._id === role._id) &&
@@ -162,9 +176,11 @@
         isLoading = true;
         try {
             await getItems({
-                endPoint: 'users',
+                endPoint: `users?search=${searchQuery}&page=${currentPage}&limit=${limit}`,
                 onSuccess: (response) => {
-                    users = Array.isArray(response) ? response : [];
+                    users = response.data;
+                    totalItems = response.meta.total;
+                    totalPages = response.meta.totalPages;
                 }
             });
         } catch (error) {
@@ -250,11 +266,12 @@
                     {
                         endPoint: 'users',
                         onSuccess: (response) => {
-                            if(response.success) {
-                                fetchUsers();
-                            } else {
-                                alert(response.message);
-                            }
+                            fetchUsers();
+                            // if(response.success) {
+                            //     fetchUsers();
+                            // } else {
+                            //     alert(response.message);
+                            // }
                         }
                     }
                 );
@@ -273,6 +290,29 @@
         };
         isEditing = true;
         showUserModal = true;
+    }
+
+    // Add debounced search handler
+    let searchTimeout;
+    function handleSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentPage = 1; // Reset to first page on new search
+            fetchUsers();
+        }, 300);
+    }
+
+    // Add pagination handler
+    function handlePageChange(newPage) {
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            fetchUsers();
+        }
+    }
+
+    // Watch for search changes
+    $: if (searchQuery !== undefined) {
+        handleSearch();
     }
 </script>
 
@@ -296,13 +336,28 @@
         </button>
     </div>
 
+    <!-- Add Search Bar -->
+    <div class="mb-4 relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+        </div>
+        <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search users..."
+            class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
     {#if isLoading}
         <div class="text-center py-8">
             <p class="text-gray-500">Loading...</p>
         </div>
     {:else}
         <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow max-h-[calc(100vh-11rem)] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow max-h-[calc(100vh-18rem)] overflow-y-auto">
             <table class="min-w-full">
                 <thead class="bg-gray-50 sticky top-0">
                     <tr>
@@ -350,6 +405,80 @@
                     {/each}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Add Pagination Controls -->
+        <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700">page size: </span>
+                <select 
+                    bind:value={limit} 
+                    on:change={() => handlePageChange(1)}
+                    class="border rounded px-2 py-1 text-sm"
+                >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <!-- <span class="text-sm text-gray-700">entries</span> -->
+            </div>
+
+            <div class="flex items-center justify-center space-x-2">
+                <!-- First Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === 1}
+                    on:click={() => handlePageChange(1)}
+                >
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                
+                <!-- Previous Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === 1}
+                    on:click={() => handlePageChange(currentPage - 1)}
+                >
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                
+                <!-- Page Numbers -->
+                {#if startPage > 1}
+                    <span class="px-3 py-2">...</span>
+                {/if}
+                
+                {#each pagesToShow as page}
+                    <button
+                        class="px-3 py-2 rounded-lg transition {currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}"
+                        on:click={() => handlePageChange(page)}
+                    >
+                        {page}
+                    </button>
+                {/each}
+                
+                {#if endPage < totalPages}
+                    <span class="px-3 py-2">...</span>
+                {/if}
+                
+                <!-- Next Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === totalPages}
+                    on:click={() => handlePageChange(currentPage + 1)}
+                >
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                
+                <!-- Last Page Button -->
+                <button
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={currentPage === totalPages}
+                    on:click={() => handlePageChange(totalPages)}
+                >
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
         </div>
     {/if}
 

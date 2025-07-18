@@ -1,7 +1,7 @@
 export function imageUpload(event, {onSuccess, onError}) {
   const file = event.target.files[0];
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg','image/webp'];
-  const maxSize = 1 * 1024 * 1024; // 1MB
+  const maxSize = 5 * 1024 * 1024; // 1MB
 
   // Validate if a file is selected
   if (!file) {

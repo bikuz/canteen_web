@@ -4,7 +4,7 @@ import { config } from '../../app.config';
 
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 5 minutes for activity tracking
 const WARNING_BEFORE_TIMEOUT = 1 * 60 * 1000; // 1 minute warning
-const TOKEN_REFRESH_THRESHOLD = 5 * 60 * 1000; // Refresh 5 minutes before token expires
+const TOKEN_REFRESH_THRESHOLD = 1 * 60 * 1000; // Refresh 5 minutes before token expires
 let inactivityTimer;
 let tokenRefreshTimer;
 

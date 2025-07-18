@@ -17,6 +17,7 @@
         cancelledOrders: 0
     };
     let selectedOrder = null;
+    let searchQuery = '';
 
     onMount(() => {
         const end = new Date();
@@ -36,6 +37,7 @@
             if (startDate) queryParams.append('startDate', startDate);
             if (endDate) queryParams.append('endDate', endDate);
             if (selectedStatus) queryParams.append('orderStatus', selectedStatus);
+            if (searchQuery.trim()) queryParams.append('customer', searchQuery.trim());
 
             await getItems({
                 endPoint: `orders?${queryParams.toString()}`,
@@ -112,29 +114,57 @@
 </script>
 
 <div class="container mx-auto p-4 max-w-6xl">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Order Dashboard</h1>
+    <div class="mb-6">
         
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label for="startDate" class="text-sm text-gray-600">From:</label>
-                <input
-                    type="date"
-                    id="startDate"
-                    bind:value={startDate}
-                    on:change={handleFilterChange}
-                    class="border rounded px-2 py-1 text-sm"
-                />
-            </div>
-            <div class="flex items-center gap-2">
-                <label for="endDate" class="text-sm text-gray-600">To:</label>
-                <input
-                    type="date"
-                    id="endDate"
-                    bind:value={endDate}
-                    on:change={handleFilterChange}
-                    class="border rounded px-2 py-1 text-sm"
-                />
+        
+        <!-- Search and Filter Section -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h1 class="text-2xl font-bold mb-4">Order Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        bind:value={searchQuery}
+                        placeholder="Search customer..."
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <!-- Date Range Inputs -->
+                <div class="flex items-center gap-2">
+                    <label for="startDate" class="text-sm text-gray-600 whitespace-nowrap">From:</label>
+                    <input
+                        type="date"
+                        id="startDate"
+                        bind:value={startDate}
+                         
+                        class="flex-1 border rounded px-2 py-2 text-sm"
+                    />
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="endDate" class="text-sm text-gray-600 whitespace-nowrap">To:</label>
+                    <input
+                        type="date"
+                        id="endDate"
+                        bind:value={endDate}
+                         
+                        class="flex-1 border rounded px-2 py-2 text-sm"
+                    />
+                </div>
+
+                <!-- Apply Filters Button -->
+                <button 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    on:click={handleFilterChange}
+                >
+                    Apply Filters
+                </button>
             </div>
         </div>
     </div>
@@ -232,7 +262,7 @@
         </div>
 
         <!-- Orders Table -->
-        <div class="bg-white rounded-lg shadow p-4 max-h-[calc(100vh-17rem)] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow p-4 max-h-[calc(100vh-23rem)] overflow-y-auto">
             <table class="min-w-full">
                 <thead class="sticky top-[-1rem]">
                     <tr class="bg-gray-50">
@@ -255,7 +285,13 @@
                                 #{order.shortId}
                                 <p class="text-sm text-gray-500 mt-1">{formatDate(order.createdAt)}</p>
                             </td>
-                            <td class="px-6 py-2 whitespace-nowrap">{order.userProfile.firstName} {order.userProfile.lastName}</td>
+                            <td class="px-6 py-2 whitespace-nowrap">
+                                {#if order.userProfile}
+                                    {order.userProfile.firstName || ''} {order.userProfile.lastName || ''}
+                                {:else}
+                                    <span class="text-gray-400">No user data</span>
+                                {/if}
+                            </td>
                             <td class="px-6 py-2 whitespace-nowrap">{formatCurrency(order.totalPrice)}</td>
                             <td class="px-6 py-2 whitespace-nowrap">{order.status}</td>
                             {#if selectedStatus === 'cancelled'}
@@ -299,9 +335,13 @@
                     <!-- Customer Information -->
                     <div class="space-y-2 bg-gray-100 p-4 rounded-lg">
                         <h3 class="text-lg font-semibold">Customer Information</h3>
-                        <p class="text-gray-600">Name: {selectedOrder.userProfile.firstName} {selectedOrder.userProfile.lastName}</p>
-                        <p class="text-gray-600">Email: {selectedOrder.userProfile.email}</p>
-                        <p class="text-gray-600">Phone: {selectedOrder.userProfile.phoneNumber}</p>
+                        {#if selectedOrder.userProfile}
+                            <p class="text-gray-600">Name: {selectedOrder.userProfile.firstName || ''} {selectedOrder.userProfile.lastName || ''}</p>
+                            <p class="text-gray-600">Email: {selectedOrder.userProfile.email || 'N/A'}</p>
+                            <p class="text-gray-600">Phone: {selectedOrder.userProfile.phoneNumber || 'N/A'}</p>
+                        {:else}
+                            <p class="text-gray-400">No user information available</p>
+                        {/if}
                     </div>
 
                     <!-- Order Information -->

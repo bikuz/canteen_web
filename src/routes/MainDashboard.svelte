@@ -151,7 +151,7 @@
             if (endDate) queryParams.append('endDate', endDate);
 
             await getItems({
-                endPoint: `orders?${queryParams.toString()}`,
+                endPoint: `orders/analyze?${queryParams.toString()}`,
                 onSuccess: (response) => {
                     orders = response.sort((a, b) => 
                         new Date(b.createdAt) - new Date(a.createdAt)

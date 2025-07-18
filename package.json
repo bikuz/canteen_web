@@ -28,7 +28,7 @@
     "fast-glob": "3.3.0",
     "highcharts": "^12.1.2",
     "highcharts-export-server": "^4.0.2",
-    "micromatch": "4.0.4",
+    "micromatch": "^4.0.8",
     "sirv-cli": "^2.0.0",
     "svelte-hero-icons": "^5.2.0",
     "svelte-preprocess": "^6.0.2",

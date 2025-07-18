@@ -21,6 +21,7 @@
     };
     let selectedStatus = null;
     let selectedOrder = null;
+    let searchQuery = '';
 
     onMount(() => {
         const end = new Date();
@@ -40,9 +41,10 @@
             if (startDate) queryParams.append('startDate', startDate);
             if (endDate) queryParams.append('endDate', endDate);
             if (selectedStatus) queryParams.append('paymentStatus', selectedStatus);
+            if (searchQuery.trim()) queryParams.append('customer', searchQuery.trim());
 
             await getItems({
-                endPoint: `orders?${queryParams.toString()}`,
+                endPoint: `payment/findOrders?${queryParams.toString()}`,
                 onSuccess: (response) => {
                     orders = response.sort((a, b) => 
                         new Date(b.createdAt) - new Date(a.createdAt)
@@ -129,29 +131,53 @@
 </script>
 
 <div class="container mx-auto p-4 max-w-6xl">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Payment Dashboard</h1>
-        
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label for="startDate" class="text-sm text-gray-600">From:</label>
-                <input
-                    type="date"
-                    id="startDate"
-                    bind:value={startDate}
-                    on:change={handleFilterChange}
-                    class="border rounded px-2 py-1 text-sm"
-                />
-            </div>
-            <div class="flex items-center gap-2">
-                <label for="endDate" class="text-sm text-gray-600">To:</label>
-                <input
-                    type="date"
-                    id="endDate"
-                    bind:value={endDate}
-                    on:change={handleFilterChange}
-                    class="border rounded px-2 py-1 text-sm"
-                />
+    <div class="mb-6">
+        <!-- Search and Filter Section -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h1 class="text-2xl font-bold mb-4">Payment Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        bind:value={searchQuery}
+                        placeholder="Search customer..."
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <!-- Date Range Inputs -->
+                <div class="flex items-center gap-2">
+                    <label for="startDate" class="text-sm text-gray-600 whitespace-nowrap">From:</label>
+                    <input
+                        type="date"
+                        id="startDate"
+                        bind:value={startDate}
+                        class="flex-1 border rounded px-2 py-2 text-sm"
+                    />
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="endDate" class="text-sm text-gray-600 whitespace-nowrap">To:</label>
+                    <input
+                        type="date"
+                        id="endDate"
+                        bind:value={endDate}
+                        class="flex-1 border rounded px-2 py-2 text-sm"
+                    />
+                </div>
+
+                <!-- Apply Filters Button -->
+                <button 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    on:click={handleFilterChange}
+                >
+                    Apply Filters
+                </button>
             </div>
         </div>
     </div>
@@ -229,7 +255,7 @@
         </div>
 
         <!-- Recent Transactions -->
-        <div class="bg-white rounded-lg shadow p-4 flex flex-col max-h-[calc(100vh-17rem)]">
+        <div class="bg-white rounded-lg shadow p-4 flex flex-col max-h-[calc(100vh-23rem)]">
             <h2 class="text-xl font-semibold mb-2 flex-shrink-0">Recent Transactions</h2>
             <div class="overflow-x-auto flex-grow overflow-y-auto">
                 <table class="min-w-full">
