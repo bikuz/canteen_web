@@ -26,12 +26,13 @@
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
   import DeleteAccount from './routes/DeleteAccount.svelte';
+  import Suppport from './routes/suppport.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
     Square3Stack3d, ClipboardDocumentList, Squares2x2, ShoppingCart, 
     CreditCard, ClipboardDocument, ListBullet, Clock, ArrowRightOnRectangle,
-     ArrowLeftOnRectangle} from "svelte-hero-icons";
+     ArrowLeftOnRectangle, QuestionMarkCircle } from "svelte-hero-icons";
   import { cart } from './stores/cartStore';
   import { onMount, beforeUpdate } from 'svelte';
   import { getAccessToken, resetInactivityTimer } from './services/auth';
@@ -237,6 +238,12 @@
                           <span>Home</span>
                       </Link>
                   {/if}
+                  {#if $isAuthenticated}
+                      <Link to="/suppport" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={QuestionMarkCircle} size="20" />
+                          <span>Support</span>
+                      </Link>
+                  {/if}
                   
                   {#if $isAuthenticated}
                       {#if userHasPermission('User.findAll')}
@@ -423,6 +430,11 @@
                               Home</Link>
                       {/if}
                       {#if $isAuthenticated}
+                          <Link to="/suppport" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={QuestionMarkCircle} size="20" />
+                              Support</Link>
+                      {/if}
+                      {#if $isAuthenticated}
                           {#if userHasPermission('User.findAll')}
                               <Link to="/userMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                   <Icon src={UserGroup} size="20" />
@@ -519,6 +531,7 @@
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
                   <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
+                  <Route path="/suppport" component={Suppport} />
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
