@@ -26,7 +26,7 @@
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
   import DeleteAccount from './routes/DeleteAccount.svelte';
-  import Suppport from './routes/suppport.svelte';
+  import Support from './routes/support.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
@@ -115,7 +115,7 @@
   }
   // Modify your existing checkAuth function
   async function checkAuth(path) {
-    const publicRoutes = ['/', '/login', '/display', '/display2'];
+    const publicRoutes = ['/', '/login', '/display', '/display2', '/support'];
     
     if (!publicRoutes.includes(path) && !getAccessToken()) {
       const returnUrl = encodeURIComponent(path);
@@ -531,7 +531,7 @@
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
                   <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
-                  <Route path="/suppport" component={Suppport} />
+                  <Route path="/support" component={Support} />
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
