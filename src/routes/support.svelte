@@ -19,6 +19,12 @@
       font-size: 2rem;
       margin-bottom: 1rem;
     }
+    h2{
+      color: #000000;
+      font-size:1.4rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     a {
       color: #0066cc;
       text-decoration: none;
@@ -51,6 +57,9 @@
       h1 {
         font-size: 1.3rem;
       }
+      h2{
+        font-size:1.2rem;
+      }
       iframe {
         min-height: 200px;
         height: auto;
@@ -59,7 +68,7 @@
   </style>
   
   <div class="container">
-    <h1>Support</h1>
+    <h2>Support</h2>
   
     <div class="section">
       <p>Thank you for using <strong>iCanteen</strong>. If you have any issues or suggestions, feel free to reach out using the form below or the contact options provided.</p>
@@ -71,7 +80,7 @@
     </div>
   
     <div class="section iframe-wrapper">
-      <h1>Submit a Support Request</h1>
+      <h2>Submit a Support Request</h2>
       <iframe src={googleFormUrl}></iframe>
     </div>
   

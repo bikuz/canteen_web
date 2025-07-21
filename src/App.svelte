@@ -220,6 +220,8 @@
       <Route path="/display" component={MenuDisplay} />
   {:else if window.location.pathname === '/display2'}
       <Route path="/display2" component={MenuDisplay2} />
+  {:else if window.location.pathname === '/support'}
+      <Route path="/support" component={Support} />
   {:else}
       <div class="flex h-screen w-screen bg-gray-100 overflow-hidden">
           <!-- Sidebar -->
