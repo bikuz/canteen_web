@@ -74,6 +74,11 @@
             isValid = false;
         }
 
+        if(!newFoodItem.category){
+            formErrors.category = 'Category cannot be empty';
+            isValid = false;
+        }
+
         // Validate time range
         if (newFoodItem.orderingStartTime > newFoodItem.orderingEndTime) {
             formErrors.timeRange = 'Start time must be before end time';
@@ -307,6 +312,9 @@
                     <option value={categoryOption._id}>{categoryOption.name}</option>
                   {/each}
                 </select>
+                {#if formErrors.category}
+                    <p class="text-red-500 text-sm mb-4">{formErrors.category}</p>
+                {/if}
             </div>
 
             <div class="flex items-center space-x-4 mb-4">
