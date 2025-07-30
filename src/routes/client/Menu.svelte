@@ -133,9 +133,10 @@
         selectedCategory = category;
     }
 
-    function isItemAvailable(item){
-        return item.isAvailable && item.isOrderingAllowed;
-    }
+    // function isItemAvailable(item){
+    //     // return item.isAvailable && item.isOrderingAllowed;
+    //     return item.isOrderingAllowed;
+    // }
 </script>
 
 <div class="container mx-auto p-4 pt-2 pb-2 flex flex-col space-y-6 bg-gray-50 h-full relative">
@@ -215,9 +216,9 @@
 
                             <div 
                                 class="bg-white rounded-lg shadow overflow-hidden transition-shadow duration-200 
-                                    {isItemAvailable(item) ? 'cursor-pointer hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}"
+                                    {item.isOrderingAllowed ? 'cursor-pointer hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}"
                                 on:click={() => {
-                                    if (isItemAvailable(item)) showItemDetail(item);
+                                    if (item.isOrderingAllowed) showItemDetail(item);
                                 }}
                             >
                                 <div class="relative h-24 w-full">
@@ -234,7 +235,7 @@
                                         </div>
                                     {/if}
 
-                                    {#if !isItemAvailable(item)}
+                                    {#if !item.isOrderingAllowed}
                                         <div class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center text-red-500 text-sm font-semibold">
                                             Unavailable
                                         </div>
