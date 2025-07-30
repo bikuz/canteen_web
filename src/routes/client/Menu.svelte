@@ -132,6 +132,10 @@
     function filterByCategory(category) {
         selectedCategory = category;
     }
+
+    function isItemAvailable(item){
+        return item.isAvailable && item.isOrderingAllowed;
+    }
 </script>
 
 <div class="container mx-auto p-4 pt-2 pb-2 flex flex-col space-y-6 bg-gray-50 h-full relative">
@@ -208,11 +212,15 @@
                         {#each items as item}
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <!-- svelte-ignore a11y-no-static-element-interactions -->
+
                             <div 
-                                class="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                                on:click={() => showItemDetail(item)}
+                                class="bg-white rounded-lg shadow overflow-hidden transition-shadow duration-200 
+                                    {isItemAvailable(item) ? 'cursor-pointer hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}"
+                                on:click={() => {
+                                    if (isItemAvailable(item)) showItemDetail(item);
+                                }}
                             >
-                                <div class="h-24 w-full">
+                                <div class="relative h-24 w-full">
                                     {#if item.image}
                                         <img 
                                             src={item.image} 
@@ -225,14 +233,22 @@
                                             <span class="text-gray-400 text-sm">No image</span>
                                         </div>
                                     {/if}
+
+                                    {#if !isItemAvailable(item)}
+                                        <div class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center text-red-500 text-sm font-semibold">
+                                            Unavailable
+                                        </div>
+                                    {/if}
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-base font-semibold">{item.name}</h3>
                                     <p class="text-gray-600 text-xs mt-1">{item.description}</p>
-                                    <p class="text-blue-600 font-medium mt-1">Rs. {item.price}</p>
+                                    <!-- <p class="text-gray-600 text-xs mt-1 text-red-500">Unavailable</p> -->
+                                    <p class="text-blue-600 font-medium mt-1 ">Rs. {item.price}</p>
                                 </div>
                             </div>
                         {/each}
+
                     </div>
                 </div>
             {/each}
