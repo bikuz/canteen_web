@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
     import * as api from '../services/apiHandler';
+    // import { getItems } from '../../services/apiHandler';
     import UserSearch from '../partials/components/UserSearch.svelte';
 
     let categories = [];
@@ -133,16 +134,35 @@
         itemElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function addItemToOrder(item) {
-        order.update(currentOrder => {
-            const existingItem = currentOrder.find(i => i._id === item._id);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                currentOrder.push({ ...item, quantity: 1 });
+    async function addItemToOrder(item) {
+        //check fooditem if it is available
+        const queryParams = new URLSearchParams();
+        if (item) queryParams.append('foodItemId', item._id);
+
+        await api.getItems(
+            {
+                endPoint: `orders/isOrderingAllowed?${queryParams.toString()}`,
+                onSuccess: (response) => {
+                   if(response.isOrderingAllowed === true){
+                    order.update(currentOrder => {
+                        const existingItem = currentOrder.find(i => i._id === item._id);
+                        if (existingItem) {
+                            existingItem.quantity += 1;
+                        } else {
+                            currentOrder.push({ ...item, quantity: 1 });
+                        }
+                        return currentOrder;
+                    });
+                   }else{
+                    alert('Ordering is not allowed for this food item');
+                   }
+                },
+                onError: (error) => {
+                    alert('Failed to add item to order');
+                }
             }
-            return currentOrder;
-        });
+        );
+
     }
 
     function deductItemFromOrder(item) {
@@ -211,6 +231,8 @@
             alert('Failed to place order. Please try again.');
         }
     }
+
+     
 
     // Calculate total items and total amount
     $: totalItems = $order.reduce((sum, item) => sum + item.quantity, 0);
