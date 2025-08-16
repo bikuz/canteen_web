@@ -32,7 +32,7 @@
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
     Square3Stack3d, ClipboardDocumentList, Squares2x2, ShoppingCart, 
     CreditCard, ClipboardDocument, ListBullet, Clock, ArrowRightOnRectangle,
-     ArrowLeftOnRectangle} from "svelte-hero-icons";
+     ArrowLeftOnRectangle, QuestionMarkCircle } from "svelte-hero-icons";
   import { cart } from './stores/cartStore';
   import { onMount, beforeUpdate } from 'svelte';
   import { getAccessToken, resetInactivityTimer } from './services/auth';
@@ -115,7 +115,7 @@
   }
   // Modify your existing checkAuth function
   async function checkAuth(path) {
-    const publicRoutes = ['/', '/login', '/display', '/display2'];
+    const publicRoutes = ['/', '/login', '/display', '/display2', '/support'];
     
     if (!publicRoutes.includes(path) && !getAccessToken()) {
       const returnUrl = encodeURIComponent(path);
@@ -220,6 +220,8 @@
       <Route path="/display" component={MenuDisplay} />
   {:else if window.location.pathname === '/display2'}
       <Route path="/display2" component={MenuDisplay2} />
+  {:else if window.location.pathname === '/support'}
+      <Route path="/support" component={Support} />
   {:else}
       <div class="flex h-screen w-screen bg-gray-100 overflow-hidden">
           <!-- Sidebar -->
@@ -236,6 +238,12 @@
                       <Link to="/" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2">
                           <Icon src={HomeModern} size="20" />
                           <span>Home</span>
+                      </Link>
+                  {/if}
+                  {#if $isAuthenticated}
+                      <Link to="/suppport" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                          <Icon src={QuestionMarkCircle} size="20" />
+                          <span>Support</span>
                       </Link>
                   {/if}
                   
@@ -428,6 +436,11 @@
                           <Link to="/" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={HomeModern} size="20" />
                               Home</Link>
+                      {/if}
+                      {#if $isAuthenticated}
+                          <Link to="/suppport" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                              <Icon src={QuestionMarkCircle} size="20" />
+                              Support</Link>
                       {/if}
                       {#if $isAuthenticated}
                           {#if userHasPermission('User.findAll')}

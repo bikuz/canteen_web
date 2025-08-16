@@ -74,6 +74,11 @@
             isValid = false;
         }
 
+        if(!newFoodItem.category){
+            formErrors.category = 'Category cannot be empty';
+            isValid = false;
+        }
+
         // Validate time range
         if (newFoodItem.orderingStartTime > newFoodItem.orderingEndTime) {
             formErrors.timeRange = 'Start time must be before end time';
@@ -307,6 +312,9 @@
                     <option value={categoryOption._id}>{categoryOption.name}</option>
                   {/each}
                 </select>
+                {#if formErrors.category}
+                    <p class="text-red-500 text-sm mb-4">{formErrors.category}</p>
+                {/if}
             </div>
 
             <div class="flex items-center space-x-4 mb-4">
@@ -332,7 +340,7 @@
             </div>
         
 
-            <div class="items-center space-x-2 mb-4 border border-gray-300 rounded-lg p-2">
+            <!-- <div class="items-center space-x-2 mb-4 border border-gray-300 rounded-lg p-2">
                 <label for="" class="text-sm mr-2 text-gray-700 flex items-center">
                 <input 
                     type="checkbox" 
@@ -367,7 +375,7 @@
                         </div>
                     {/if}
                 {/if}
-            </div>
+            </div> -->
         
         
             <!-- File input for image upload -->
@@ -596,7 +604,7 @@
                         {fi.isAvailable ? 'Yes' : 'No'}
                     </strong>
                 </p>
-                <p class="text-sm">
+                <!-- <p class="text-sm">
                     <span class="text-gray-800">Order Time:</span>
                     <strong>{fi._starttime} - {fi._endtime}</strong>
                 </p>
@@ -605,7 +613,7 @@
                     <strong class={fi.isOrderTimeFrameActive ? 'text-green-600' : 'text-red-600'}>
                         {fi.isOrderTimeFrameActive ? 'Active' : 'Not Active'}
                     </strong>
-                </p>
+                </p> -->
             </div>
 
             <!-- Action Buttons -->
