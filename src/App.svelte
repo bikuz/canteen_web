@@ -26,6 +26,7 @@
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
   import DeleteAccount from './routes/DeleteAccount.svelte';
+  import TotalOrders from './routes/TotalOrders.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
@@ -281,6 +282,12 @@
                           </Link>
                       {/if}
 
+                      {#if userHasPermission('Orders.findAll')}
+                            <Link to="/totalOrders" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                <Icon src={ClipboardDocument} size="20" />
+                                Total Orders</Link>
+                        {/if}
+
                       {#if userHasPermission('Payments.findAll')}
                           <Link to="/payMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                               <Icon src={CreditCard} size="20" />
@@ -459,6 +466,13 @@
                                   Order Management</Link>
                           {/if}
 
+                          {#if userHasPermission('Orders.findAll')}
+                                <Link to="/totalOrders" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                    <Icon src={ClipboardDocument} size="20" />
+                                    <span>Total Orders</span>
+                                </Link>
+                            {/if}
+
                           {#if userHasPermission('Payments.findAll')}
                               <Link to="/payMgmt" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                   <Icon src={CreditCard} size="20" />
@@ -519,6 +533,7 @@
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
                   <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
+                  <ProtectedRoute path="/totalOrders" component={TotalOrders} />
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
