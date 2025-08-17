@@ -388,7 +388,7 @@
                                             No Image
                                         </div>
                                     {/if}
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/50 transition-all duration-500"></div>
+                                    <!-- <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/50 transition-all duration-500"></div> -->
                                     
                                     <!-- Priority Badge for high order items -->
                                     {#if item.orders >= 10}
