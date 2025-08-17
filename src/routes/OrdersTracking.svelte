@@ -204,7 +204,7 @@
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="text-center mb-3">
                 <h1 class="text-2xl md:text-3xl font-bold text-black mb-2">
-                    🍽️ Kitchen Order Summary
+                    🍽️ Order Tracking
                 </h1>
                 <p class="text-gray-700 text-lg">
                     {selectedDate === new Date().toISOString().split('T')[0] 
