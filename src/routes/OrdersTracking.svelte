@@ -370,14 +370,24 @@
                             <div class="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 border border-blue-200/50 overflow-hidden">
                                 <!-- Enhanced Image Section -->
                                 <div class="relative h-36 overflow-hidden">
-                                                                         <img 
+                                                                         <!-- <img 
                                          src={item.image || getDefaultImage(item.category)} 
                                          alt={item.name}
                                          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                          on:error={(e) => {
                                              e.target.src = getDefaultImage(item.category);
                                          }}
-                                     />
+                                     /> -->
+
+                                     {#if item.image}
+                                        <img class="object-cover w-full h-full"
+                                        src={item.image} 
+                                        alt="{item.name}" />
+                                    {:else}
+                                        <div class="flex items-center justify-center h-full text-gray-400 italic">
+                                            No Image
+                                        </div>
+                                    {/if}
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 group-hover:from-black/50 transition-all duration-500"></div>
                                     
                                     <!-- Priority Badge for high order items -->
