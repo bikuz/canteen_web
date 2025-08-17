@@ -111,21 +111,7 @@
         foodItems = Array.from(itemOrderMap.values())
             .sort((a, b) => b.orders - a.orders);
     }
-
-    function getDefaultImage(categoryName) {
-        // Default images based on category
-        const defaultImages = {
-            'Pizza': 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=400&h=300&fit=crop&crop=center',
-            'Burgers': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&crop=center',
-            'Pasta': 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400&h=300&fit=crop&crop=center',
-            'Salads': 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop&crop=center',
-            'Desserts': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop&crop=center',
-            'Beverages': 'https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=300&fit=crop&crop=center'
-        };
-        
-        return defaultImages[categoryName] || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center';
-    }
-
+    
     function formatCurrency(amount) {
         return `Rs. ${amount.toFixed(2)}`;
     }
@@ -370,15 +356,7 @@
                             <div class="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 border border-blue-200/50 overflow-hidden">
                                 <!-- Enhanced Image Section -->
                                 <div class="relative h-36 overflow-hidden">
-                                                                         <!-- <img 
-                                         src={item.image || getDefaultImage(item.category)} 
-                                         alt={item.name}
-                                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                         on:error={(e) => {
-                                             e.target.src = getDefaultImage(item.category);
-                                         }}
-                                     /> -->
-
+                                                                         
                                      {#if item.image}
                                         <img class="object-cover w-full h-full"
                                         src={item.image} 
