@@ -269,27 +269,35 @@
                                 <th style="width: 8%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token</th>
                                 <th style="width: 10%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
                                 <th style="width: 12%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th style="width: 55%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                                <th style="width: 25%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                                <th style="width: 20%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th style="width: 10%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ext. No.</th>
                                 <th style="width: 8%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th style="width: 7%" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             {#each orders as order, index}
-                                <tr 
+                                <!-- <tr 
                                     class="hover:bg-blue-50 {index === focusedOrderIndex ? 'bg-blue-100' : ''}"
                                     on:click={() => makePayment(order)}
+                                > -->
+                                <tr 
+                                    class="hover:bg-blue-50 {index === focusedOrderIndex ? 'bg-blue-100' : ''} cursor-pointer"
+                                    on:click={() => focusedOrderIndex = index}
                                 >
                                     <td style="width: 8%" class="px-6 py-4 whitespace-nowrap font-bold">{order.token}</td>
                                     <td style="width: 10%" class="px-6 py-4 whitespace-nowrap">#{order.shortId}</td>
                                     <td style="width: 12%" class="px-6 py-4 whitespace-nowrap">{formatDate(order.createdAt)}</td>
-                                    <td style="width: 55%" class="px-6 py-4">
+                                    <td style="width: 25%" class="px-6 py-4">
                                         <div class="text-sm space-y-1">
                                             {#each order.foodItems as item, i}
                                                 <div class="whitespace-nowrap">{item.name} ({order.quantities[i]})</div>
                                             {/each}
                                         </div>
                                     </td>
+                                    <td style="width: 20%" class="px-6 py-4 whitespace-nowrap">{order.userProfile.firstName} {order.userProfile.lastName}</td>
+                                    <td style="width: 10%" class="px-6 py-4 whitespace-nowrap">{order.userProfile.phoneNumber}</td>
                                     <td style="width: 8%" class="px-6 py-4 whitespace-nowrap font-semibold">{formatCurrency(order.totalPrice)}</td>
                                     <td style="width: 7%" class="px-6 py-4 whitespace-nowrap">
                                         <button 

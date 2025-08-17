@@ -26,7 +26,7 @@
   import RoleManagement from './routes/RoleManagement.svelte';
   import UserManagement from './routes/UserManagement.svelte';
   import DeleteAccount from './routes/DeleteAccount.svelte';
-  import TotalOrders from './routes/TotalOrders.svelte';
+  import OrdersTracking from './routes/OrdersTracking.svelte';
 
   import { isAuthenticated, logout as logoutAction} from './routes/routes.js';
   import { Icon, ArrowUp, Bars3, HomeModern , UserGroup, UserCircle, 
@@ -240,12 +240,12 @@
                           <span>Home</span>
                       </Link>
                   {/if}
-                  {#if $isAuthenticated}
+                  <!-- {#if $isAuthenticated}
                       <Link to="/suppport" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                           <Icon src={QuestionMarkCircle} size="20" />
                           <span>Support</span>
                       </Link>
-                  {/if}
+                  {/if} -->
                   
                   {#if $isAuthenticated}
                       {#if userHasPermission('User.findAll')}
@@ -291,9 +291,9 @@
                       {/if}
 
                       {#if userHasPermission('Orders.findAll')}
-                            <Link to="/totalOrders" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                            <Link to="/orderTracking" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                 <Icon src={ClipboardDocument} size="20" />
-                                Total Orders</Link>
+                                Orders Tracking</Link>
                         {/if}
 
                       {#if userHasPermission('Payments.findAll')}
@@ -480,9 +480,9 @@
                           {/if}
 
                           {#if userHasPermission('Orders.findAll')}
-                                <Link to="/totalOrders" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
+                                <Link to="/orderTracking" class="p-2 rounded hover:bg-blue-200 flex items-center gap-2" on:click={closeSidebar}>
                                     <Icon src={ClipboardDocument} size="20" />
-                                    <span>Total Orders</span>
+                                    <span>Orders Tracking</span>
                                 </Link>
                             {/if}
 
@@ -546,7 +546,7 @@
                   <ProtectedRoute path="/roleMgmt" component={RoleManagement} />
                   <ProtectedRoute path="/userMgmt" component={UserManagement} />
                   <ProtectedRoute path ="/delete-account" component={DeleteAccount}/>
-                  <ProtectedRoute path="/totalOrders" component={TotalOrders} />
+                  <ProtectedRoute path="/orderTracking" component={OrdersTracking} />
 
                   <Route path="/menuDisplay" component={MenuDisplay} />
                   <Route path="/menuDisplay2" component={MenuDisplay2} />
