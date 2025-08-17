@@ -185,108 +185,101 @@
 </script>
 
 <div class="min-h-screen max-h-screen overflow-y-auto bg-white">
-    <!-- Fixed Header -->
+    <!-- Compact Fixed Header -->
     <div class="sticky top-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="text-center mb-3">
-                <h1 class="text-2xl md:text-3xl font-bold text-black mb-2">
-                    🍽️ Order Tracking
-                </h1>
-                <p class="text-gray-700 text-lg">
-                    {selectedDate === new Date().toISOString().split('T')[0] 
-                        ? 'Live order tracking for kitchen preparation' 
-                        : `Historical order data for ${new Date(selectedDate).toLocaleDateString('en-US', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                        })}`
-                    }
-                </p>
+        <div class="max-w-7xl mx-auto px-4 py-2">
+            <!-- Compact Title and Date Row -->
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-xl font-bold text-black">
+                        🍽️ Order Tracking
+                    </h1>
+                    <div class="text-sm text-gray-600">
+                        {selectedDate === new Date().toISOString().split('T')[0] 
+                            ? 'Live tracking' 
+                            : new Date(selectedDate).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                            })
+                        }
+                    </div>
+                </div>
                 
-                <!-- Date Selector Section -->
-                <div class="flex justify-center items-center gap-4 mt-4 mb-3">
-                    <!-- Previous Day Button -->
+                <!-- Compact Controls -->
+                <div class="flex items-center gap-2">
                     <button 
-                        class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                        class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-colors"
                         on:click={goToPreviousDay}
                         disabled={isLoading}
+                        title="Previous Day"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                        Previous
+                        ←
                     </button>
-
-                    <!-- Date Input -->
-                    <div class="flex items-center gap-2">
-                        <label for="dateSelector" class="text-sm font-medium text-gray-700">Date:</label>
-                        <input
-                            id="dateSelector"
-                            type="date"
-                            bind:value={selectedDate}
-                            on:change={handleDateChange}
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            max={new Date().toISOString().split('T')[0]}
-                        />
-                    </div>
-
-                    <!-- Next Day Button -->
+                    
+                    <input
+                        type="date"
+                        bind:value={selectedDate}
+                        on:change={handleDateChange}
+                        class="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        max={new Date().toISOString().split('T')[0]}
+                    />
+                    
                     <button 
-                        class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
+                        class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-colors"
                         on:click={goToNextDay}
                         disabled={isLoading || selectedDate === new Date().toISOString().split('T')[0]}
+                        title="Next Day"
                     >
-                        Next
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
+                        →
                     </button>
-
-                    <!-- Today Button -->
+                    
                     <button 
-                        class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                        class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors"
                         on:click={goToToday}
                         disabled={isLoading || selectedDate === new Date().toISOString().split('T')[0]}
+                        title="Today"
                     >
                         Today
                     </button>
-                </div>
-                
-                <!-- Refresh and Stats Section -->
-                <div class="flex justify-center items-center gap-4 mt-3">
+                    
                     <button 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                        class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1"
                         on:click={manualRefresh}
                         disabled={isLoading}
+                        title="Refresh"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
-                        {isLoading ? 'Refreshing...' : 'Refresh'}
+                        {isLoading ? '...' : 'Refresh'}
                     </button>
-                    
-                    <div class="text-sm text-gray-600">
-                        Last updated: {lastUpdated.toLocaleTimeString()}
-                    </div>
-                    
-                    <div class="text-sm text-gray-600">
-                        Auto-refresh: {Math.floor(REFRESH_INTERVAL / 1000)}s
-                    </div>
                 </div>
             </div>
 
-            <!-- Category Filter Tabs -->
-            <div class="flex flex-wrap justify-center gap-2 mb-2">
+            <!-- Compact Stats Row -->
+            <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                <div class="flex items-center gap-4">
+                    <span>Total: {totalOrders} items</span>
+                    <span>Revenue: {formatCurrency(totalRevenue)}</span>
+                    <span>Items: {foodItems.length}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <span>Auto-refresh: {Math.floor(REFRESH_INTERVAL / 1000)}s</span>
+                </div>
+            </div>
+
+            <!-- Compact Category Filter Tabs -->
+            <div class="flex flex-wrap gap-1 mb-1">
                 {#each categoryNames as category}
                     <button
-                        class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 {selectedCategory === category 
-                            ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg transform scale-105' 
-                            : 'bg-white/80 text-gray-700 hover:bg-blue-100 hover:text-blue-700 hover:shadow-md'}"
+                        class="px-2 py-1 rounded text-sm font-medium transition-all duration-300 {selectedCategory === category 
+                            ? 'bg-blue-600 text-white shadow-md' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
                         on:click={() => selectedCategory = category}
                     >
-                        <span>{category}</span>
-                        <span class="ml-2 px-2 py-1 rounded-full text-xs {selectedCategory === category 
+                        {category}
+                        <span class="ml-1 px-1 py-0.5 rounded text-sm {selectedCategory === category 
                             ? 'bg-white/20 text-white' 
                             : 'bg-gray-200 text-gray-600'}">
                             {category === 'All' ? totalOrders : (groupedItems[category] || []).reduce((sum, item) => sum + item.orders, 0)}
@@ -321,21 +314,6 @@
     {:else}
         <!-- Scrollable Content -->
         <div class="max-w-7xl mx-auto px-4 pb-8">
-            <!-- Summary Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-blue-50 rounded-lg p-4 text-center">
-                    <h3 class="text-blue-700 text-sm font-semibold">Total Items Ordered</h3>
-                    <p class="text-2xl font-bold text-blue-700">{totalOrders}</p>
-                </div>
-                <div class="bg-green-50 rounded-lg p-4 text-center">
-                    <h3 class="text-green-700 text-sm font-semibold">Total Revenue</h3>
-                    <p class="text-2xl font-bold text-green-700">{formatCurrency(totalRevenue)}</p>
-                </div>
-                <div class="bg-purple-50 rounded-lg p-4 text-center">
-                    <h3 class="text-purple-700 text-sm font-semibold">Unique Items</h3>
-                    <p class="text-2xl font-bold text-purple-700">{foodItems.length}</p>
-                </div>
-            </div>
 
             <!-- Food Items by Category -->
             {#each Object.entries(filteredGroupedItems) as [category, items]}
